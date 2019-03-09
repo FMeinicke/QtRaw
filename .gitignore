@@ -4,3 +4,6 @@ Makefile
 moc_*.cpp
 build
 *.user
+third-party/*/bin
+third-party/*/include
+third-party/*/lib
