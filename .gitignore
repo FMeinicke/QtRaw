@@ -2,3 +2,8 @@
 *.o
 Makefile
 moc_*.cpp
+build
+iconv
+libjpeg-turbo
+libxml2
+*.user

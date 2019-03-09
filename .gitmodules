@@ -1,0 +1,8 @@
+[submodule "LibRaw"]
+	path = LibRaw
+	url = https://github.com/LibRaw/LibRaw.git
+	branch = 0.19-stable
+[submodule "rawspeed"]
+	path = rawspeed
+	url = https://github.com/darktable-org/rawspeed.git
+	branch = master

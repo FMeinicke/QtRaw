@@ -1,14 +1,21 @@
 include(../common-config.pri)
 
-TARGET  = qtraw
+CONFIG(debug,debug|release) {
+    TARGET  = qtrawd
+} else {
+    TARGET  = qtraw
+}
+
 TEMPLATE = lib
 CONFIG += \
     link_pkgconfig \
     plugin
 DESTDIR = imageformats
 
-PKGCONFIG += \
-    libraw
+unix: {
+    PKGCONFIG += \
+        libraw
+}
 
 HEADERS += \
     datastream.h \
@@ -19,6 +26,10 @@ SOURCES += \
     raw-io-handler.cpp
 OTHER_FILES += \
     raw.json
+
+INCLUDEPATH *= $$PWD\..\LibRaw\libraw\
+
+LIBS += -L$$OUT_PWD/../libs -llibraw
 
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target
