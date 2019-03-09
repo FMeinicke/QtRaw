@@ -4,7 +4,7 @@ A Qt image plugin for loading raw files, via libraw. Once installed, it enables 
 
 The code is licensed under the GPL v3 licence. If you need to distribute it under a different license, please contact me at info@mardy.it
 
-This is a fork from the [mardy/qtraw](https://github.com/mardy/qtraw) repsitory wih the intention to make the QtRaw Plugin usable under Windows as well as Linux. 
+This is a fork from the [mardy/qtraw](https://github.com/mardy/qtraw) repsitory with the intention to make the QtRaw Plugin usable under Windows as well as Linux. 
 
 ## Installation
 
