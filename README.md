@@ -21,8 +21,11 @@ for building with Qt 4.
 Alternatively, you can find the libraw source code at
 http://www.libraw.org/download
 
+Once the dependencies are set up, then clone the repository as usual with
 
-Once the dependencies are set up, the following commands will build and install the plugin into your system:
+    git clone https://github.com/FlorianMeinicke/QtRaw.git  
+
+The following commands will build and install the plugin into your system:
 
       qmake  
       make  
@@ -35,23 +38,26 @@ First of all clone the repository with
 
       git clone --recursive https://github.com/FlorianMeinicke/QtRaw.git  
 
-After that you need to apply the patches provided in the `patches` directoy of the repository. This will apply all the changes that are necessary to build with MinGW under Windows. In the `rawspeed` directory of the repository run
+After that you need to apply the patches provided in the `patches` directoy of the repository. This will apply all the changes that are necessary to build with MinGW under Windows. In the `patches/rawspeed` directory of the repository run
 
       git apply --ignore-space-change --ignore-whitespace ..\patches\rawspeed.patch  
 
-and in the `LibRaw` directory run the same command but with the `LibRaw.patch`. 
-The next step is to get all dependencies that are required by LibRaw and rawspeed. All dependencies need to go in the `third-party` directory. However if you prefer to store your dependencies somewhere else you can also do that but you have to change all paths that point to the `third-party` directory in the `rawspeed.pro` and the `libraw.pro` file. Follo th instructions below to get all dependencies:
+and in the `patches/LibRaw` directory run the same command but with the `LibRaw.patch` instead.  
+
+The next step is to get all dependencies that are required by LibRaw and rawspeed. All dependencies need to go in the `third-party` directory. However if you prefer to store your dependencies somewhere else you can also do that but you have to change all paths that point to the `third-party` directory in the `rawspeed.pro` and the `libraw.pro` file. Follow the instructions below to get all dependencies:
 1. Download the `libjpeg` installer for gcc (MinGW) from https://sourceforge.net/projects/libjpeg-turbo/. Execute it and select the `libjpeg-turbo` directory as destination folder.
 2. Download the `iconv-1.9.2.win32.zip` and `libxml2-2.7.8.win32.zip` archives from https://www.zlatkovic.com/pub/libxml/ and extract them to the `iconv` and the `libxml2` directory respectively.
 
-Finally you are ready to build QtRaw. Open the `qtraw.pro` file with QtCreator. Go into the 'Projects' tab on the left and add a build step. Select 'Make' and give it `install` as 'Make arguments'. Then just hit 'Build'. If you prefer the command line, just run
+Finally you are ready to build QtRaw. Open the `qtraw.pro` file with QtCreator. Go into the 'Projects' tab on the left and add a build step. Select 'Make' and give it `install` as 'Make arguments'. Then just hit 'Build' and that's it. 
+
+If you prefer the command line, just run
 
       mkdir build && cd build  
       qmake ..   
       mingw32-make -j<number_of_cpu_cores>  
       mingw32-make install  
 
-Substitute `<number_of_cpu_cores>` with the number of CPUs your PC has.
+Substitute `<number_of_cpu_cores>` with the number of CPUs your PC has.  
 If everything worked correctly, all Qt applications should be able to load and display raw camera files.
 
 This was tested with Qt 5.11.1 on a Windows 10 machine. I'll test if and how this procedure is applicable with the MSVC compiler as well.

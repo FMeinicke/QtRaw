@@ -1,9 +1,12 @@
 include(common-config.pri)
 
 TEMPLATE = subdirs
-SUBDIRS = \
-    rawspeed \
-    LibRaw/buildfiles/libraw.pro \
+win32: {
+    SUBDIRS = \
+        rawspeed \
+        LibRaw/buildfiles/libraw.pro \
+}
+SUBDIRS += \
     src \
     tests
 

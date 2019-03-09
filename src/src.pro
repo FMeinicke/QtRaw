@@ -27,9 +27,11 @@ SOURCES += \
 OTHER_FILES += \
     raw.json
 
-INCLUDEPATH *= $$PWD\..\LibRaw\libraw\
+win32: {
+    INCLUDEPATH *= $$PWD\..\LibRaw\libraw\
 
-LIBS += -L$$OUT_PWD/../libs -llibraw
+    LIBS += -L$$OUT_PWD/../libs -llibraw
+}
 
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target
