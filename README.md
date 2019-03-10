@@ -2,8 +2,6 @@
 
 A Qt image plugin for loading raw files, via libraw. Once installed, it enables all Qt applications to load raw files produced by most digital cameras.
 
-The code is licensed under the GPL v3 licence. If you need to distribute it under a different license, please contact me at info@mardy.it
-
 This is a fork from the [mardy/qtraw](https://github.com/mardy/qtraw) repsitory with the intention to make the QtRaw Plugin usable under Windows as well as Linux. 
 
 ## Installation
@@ -38,7 +36,7 @@ First of all clone the repository with
 
       git clone --recursive https://github.com/FlorianMeinicke/QtRaw.git  
 
-After that you need to apply the patches provided in the `patches` directoy of the repository. This will apply all the changes that are necessary to build with MinGW under Windows. In the `patches/rawspeed` directory of the repository run
+This will automatically clone the LibRaw and rawspeed repositories as well. After that you need to apply the patches provided in the `patches` directoy of the repository. This will apply all the changes that are necessary to build with MinGW under Windows. In the `patches/rawspeed` directory of the repository run
 
       git apply --ignore-space-change --ignore-whitespace ..\patches\rawspeed.patch  
 
@@ -46,7 +44,7 @@ and in the `patches/LibRaw` directory run the same command but with the `LibRaw.
 
 The next step is to get all dependencies that are required by LibRaw and rawspeed. All dependencies need to go in the `third-party` directory. However if you prefer to store your dependencies somewhere else you can also do that but you have to change all paths that point to the `third-party` directory in the `rawspeed.pro` and the `libraw.pro` file. Follow the instructions below to get all dependencies:
 1. Download the `libjpeg` installer for gcc (MinGW) from https://sourceforge.net/projects/libjpeg-turbo/. Execute it and select the `libjpeg-turbo` directory as destination folder.
-2. Download the `iconv-1.9.2.win32.zip` and `libxml2-2.7.8.win32.zip` archives from https://www.zlatkovic.com/pub/libxml/ and extract them to the `iconv` and the `libxml2` directory respectively.
+2. Download the `iconv-1.9.2.win32.zip`, `zlib-1.2.5.win32.zip` and `libxml2-2.7.8.win32.zip` archives from https://www.zlatkovic.com/pub/libxml/ and extract them to the `iconv`, `zlib` and the `libxml2` directory respectively.
 
 Finally you are ready to build QtRaw. Open the `qtraw.pro` file with QtCreator. Go into the 'Projects' tab on the left and add a build step. Select 'Make' and give it `install` as 'Make arguments'. Then just hit 'Build' and that's it. 
 

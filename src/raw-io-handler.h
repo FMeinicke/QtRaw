@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 Alberto Mardegan <info@mardy.it>
+ * Copyright (C) 2019 Florian Meinicke <florian.meinicke@t-online.de>
  *
  * This file is part of QtRaw.
  *

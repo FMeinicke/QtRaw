@@ -28,10 +28,16 @@ OTHER_FILES += \
     raw.json
 
 win32: {
-    INCLUDEPATH *= $$PWD\..\LibRaw\libraw\
+    INCLUDEPATH *= $$PWD/../LibRaw/libraw/
 
     LIBS += -L$$OUT_PWD/../libs -llibraw
 }
+
+LIBS += $$PWD/../third-party/zlib/bin/zlib1.dll
+LIBS += $$PWD/../third-party/iconv/bin/iconv.dll
+LIBS += $$PWD/../third-party/libxml2/bin/libxml2.dll
+LIBS += $$PWD/../third-party/libjpeg-turbo/bin/libjpeg-62.dll
+LIBS += $$OUT_PWD/../libs/rawspeed.dll $$OUT_PWD/../libs/libraw.dll
 
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target
