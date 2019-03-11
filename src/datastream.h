@@ -23,7 +23,7 @@
 
 #include <QImageIOHandler>
 
-#include <libraw_datastream.h>
+#include "libraw_datastream.h"
 
 class QIODevice;
 

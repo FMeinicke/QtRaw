@@ -25,7 +25,7 @@
 #include <QImage>
 #include <QVariant>
 
-#include <libraw.h>
+#include "libraw.h"
 
 class RawIOHandlerPrivate
 {
