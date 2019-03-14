@@ -1,5 +1,5 @@
 diff --git a/buildfiles/libraw.pro b/buildfiles/libraw.pro
-index 515a5e1..2d4311d 100644
+index 515a5e1..3e5c5ca 100644
 --- a/buildfiles/libraw.pro
 +++ b/buildfiles/libraw.pro
 @@ -1,17 +1,19 @@
@@ -37,8 +37,12 @@ index 515a5e1..2d4311d 100644
  PREPROCESS_FILES=../dcraw/dcraw.c
  preprocess.name=dcraw.c preprocess
  preprocess.input=PREPROCESS_FILES
-@@ -50,3 +52,4 @@ SOURCES+= \
+@@ -50,3 +52,8 @@ SOURCES+= \
  	../src/libraw_datastream.cpp \
  	../src/libraw_c_api.cpp
  
 +DESTDIR = ../../libs
++
++## Installation
++target.path = $$[QT_INSTALL_LIBS]
++INSTALLS = target

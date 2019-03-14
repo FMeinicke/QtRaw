@@ -8,7 +8,8 @@ win32: {
 }
 SUBDIRS += \
     src \
-    tests
+    tests \
+    example
 
 CONFIG += ordered
 
