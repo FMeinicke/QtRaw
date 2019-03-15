@@ -33,11 +33,11 @@ $ sudo make install
 ### Windows
 Unfortunately on Windows the build process is not as easy as on Linux. Therefore I tried to simplify it as much as possible. What I ended up with simplifies the build to a minimum number of steps. (If you find another easier way of building QtRaw just let me know.) 
 First of all clone the repository with
-```powershell
+```cmd
 > git clone --recursive https://github.com/FMeinicke/QtRaw.git  
 ```
 This will automatically clone the LibRaw and rawspeed repositories as well. After that you need to apply the patches provided in the `patches` directoy of the repository. This will apply all the changes that are necessary to build with MinGW under Windows. In the `patches/rawspeed` directory of the repository run
-```powershell
+```cmd
 > git apply --ignore-space-change --ignore-whitespace ..\patches\rawspeed.patch  
 ```
 and in the `patches/LibRaw` directory run the same command but with the `LibRaw.patch` instead.  
@@ -49,7 +49,7 @@ The next step is to get all dependencies that are required by LibRaw and rawspee
 Finally you are ready to build QtRaw. Open the `qtraw.pro` file with QtCreator. Go into the 'Projects' tab on the left and add a build step. Select 'Make' and give it `install` as 'Make arguments'. Then just hit 'Build' and that's it. 
 
 If you prefer the command line, just run
-```powershell
+```cmd
 > mkdir build && cd build  
 > qmake ..   
 > mingw32-make -j<number_of_cpu_cores>  
@@ -59,3 +59,20 @@ Substitute `<number_of_cpu_cores>` with the number of CPUs your PC has.
 If everything worked correctly, all Qt applications should be able to load and display raw camera files.
 
 This was tested with Qt 5.11.1 on a Windows 10 machine. I'll test if and how this procedure is applicable with the MSVC compiler as well.
+
+## Getting started
+The project contains a simple example application that was taken from one of the Qt Examples. It is basically a simplified version of the [imageviewer](https://github.com/qt/qtbase/tree/5.12/examples/widgets/widgets/imageviewer) example. The example shows how you can use a `QImageReader` object to read an image from a file:
+```cpp
+QImageReader Reader{FileName};
+const auto NewImage = Reader.read();
+
+if (NewImage.isNull())
+{
+    QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
+                                tr("Cannot load %1: %2")
+                                .arg(QDir::toNativeSeparators(FileName), Reader.errorString()));
+    return false;
+}
+m_Image = NewImage;
+m_ImageLabel->setPixmap(QPixmap::fromImage(m_Image));
+```
