@@ -1,8 +1,8 @@
 diff --git a/buildfiles/libraw.pro b/buildfiles/libraw.pro
-index 515a5e1..3e5c5ca 100644
+index 515a5e1..1942633 100644
 --- a/buildfiles/libraw.pro
 +++ b/buildfiles/libraw.pro
-@@ -1,17 +1,19 @@
+@@ -1,20 +1,28 @@
  TEMPLATE=lib
  TARGET=libraw
 -INCLUDEPATH+=../
@@ -10,9 +10,10 @@ index 515a5e1..3e5c5ca 100644
  include (libraw-common-lib.pro)
  # JPEG section (libjpeg is linked later)
  DEFINES+=USE_JPEG
-+DEFINES+=NO_LCMS
++DEFINES+=NO_LCMS ## don't have this module yet
  
- ## RawSpeed section
+-## RawSpeed section
++# RawSpeed section
  DEFINES+=USE_RAWSPEED
 -INCLUDEPATH+=../../RawSpeed/
 -win32:INCLUDEPATH+= $$TJDIR/include
@@ -21,28 +22,65 @@ index 515a5e1..3e5c5ca 100644
 -win32:LIBS+=-lrawspeed -Ld:/Qt/local/lib/$$SUFF -llibxml2
 +INCLUDEPATH+=$$PWD/../../rawspeed/
 +INCLUDEPATH+=$$PWD/../../rawspeed/include
-+win32:INCLUDEPATH *= $$PWD/../../third-party/libxml2/include $$PWD/../../third-party/libjpeg-turbo/include
-+win32:LIBS+=-lws2_32
-+win32:LIBS+=-L$$PWD/../../third-party/libjpeg-turbo/lib -ljpeg
-+win32:LIBS+=-L$$OUT_PWD/../../libs -lrawspeed -L$$PWD/../../third-party/libxml2/lib -llibxml2
++win32: {
++    INCLUDEPATH *= $$PWD/../../third-party/libxml2/include \
++                   $$PWD/../../third-party/libjpeg-turbo/include
++    LIBS+=-L$$PWD/../../third-party/iconv/lib/ -liconv \
++          -L$$PWD/../../third-party/zlib/lib/ -lzlib \
++          -L$$PWD/../../third-party/libxml2/lib -llibxml2 \
++          -L$$PWD/../../third-party/libjpeg-turbo/lib -ljpeg \
++          -L$$OUT_PWD/../../libs -lrawspeed
++    LIBS+=-lws2_32
++}
  
  HEADERS=../libraw/libraw.h \
- 	 ../libraw/libraw_alloc.h \
-@@ -24,7 +26,7 @@ HEADERS=../libraw/libraw.h \
+-	 ../libraw/libraw_alloc.h \
++        ../libraw/libraw_alloc.h \
+ 	../libraw/libraw_const.h \
+ 	../libraw/libraw_datastream.h \
+ 	../libraw/libraw_types.h \
+@@ -24,16 +32,16 @@ HEADERS=../libraw/libraw.h \
  	../internal/var_defines.h \
  	../internal/libraw_internal_funcs.h
  
 -win32: {
+-PREPROCESS_FILES=../dcraw/dcraw.c
+-preprocess.name=dcraw.c preprocess
+-preprocess.input=PREPROCESS_FILES
+-preprocess.output+=../internal/dcraw_common_fake.cpp 
+-preprocess.commands=..\\win32pre.cmd
+-preprocess.CONFIG+= no_link
+-preprocess.clean=
+-preprocess.variable_out=SOURCES
+-QMAKE_EXTRA_COMPILERS+=preprocess
 +win32-msvc: {
- PREPROCESS_FILES=../dcraw/dcraw.c
- preprocess.name=dcraw.c preprocess
- preprocess.input=PREPROCESS_FILES
-@@ -50,3 +52,8 @@ SOURCES+= \
++    PREPROCESS_FILES=../dcraw/dcraw.c
++    preprocess.name=dcraw.c preprocess
++    preprocess.input=PREPROCESS_FILES
++    preprocess.output+=../internal/dcraw_common_fake.cpp
++    preprocess.commands=..\\win32pre.cmd
++    preprocess.CONFIG+= no_link
++    preprocess.clean=
++    preprocess.variable_out=SOURCES
++    QMAKE_EXTRA_COMPILERS+=preprocess
+ }
+ 
+ CONFIG-=qt
+@@ -43,10 +51,15 @@ macx: QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.5
+ DEFINES+=LIBRAW_BUILDLIB
+ 
+ SOURCES+= \
+-	 ../internal/dcraw_common.cpp \
+-	 ../internal/dcraw_fileio.cpp \
++        ../internal/dcraw_common.cpp \
++        ../internal/dcraw_fileio.cpp \
+ 	../internal/demosaic_packs.cpp \
+ 	../src/libraw_cxx.cpp \
  	../src/libraw_datastream.cpp \
  	../src/libraw_c_api.cpp
  
 +DESTDIR = ../../libs
 +
-+## Installation
++# Installation
 +target.path = $$[QT_INSTALL_LIBS]
 +INSTALLS = target

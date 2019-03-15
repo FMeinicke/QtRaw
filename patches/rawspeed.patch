@@ -210,20 +210,25 @@ index f3d2dac9..e1e20e5b 100644
  #ifndef SIG_BLOCK
 diff --git a/rawspeed.pro b/rawspeed.pro
 new file mode 100644
-index 00000000..78bf8541
+index 00000000..5864a9cb
 --- /dev/null
 +++ b/rawspeed.pro
-@@ -0,0 +1,129 @@
+@@ -0,0 +1,134 @@
 +TEMPLATE=lib
 +TARGET=rawspeed
++CONFIG += warn_off
 +
-+win32:INCLUDEPATH *= $$PWD/../third-party/iconv/include \
-+    $$PWD/../third-party/libxml2/include/libxml2 \
-+    $$PWD/../third-party/libjpeg-turbo/include
-+win32:LIBS+=-L$$PWD/../third-party/iconv/lib/ -liconv \
-+    -L$$PWD/../third-party/libxml2/lib -llibxml2 \
-+    -L$$PWD/../third-party/libjpeg-turbo/lib -ljpeg
-+
++win32: {
++    INCLUDEPATH *= $$PWD/../third-party/iconv/include \
++        $$PWD/../third-party/zlib/include \
++        $$PWD/../third-party/libxml2/include/libxml2 \
++        $$PWD/../third-party/libjpeg-turbo/include
++    LIBS+=-L$$PWD/../third-party/iconv/lib/ -liconv \
++          -L$$PWD/../third-party/zlib/lib/ -lzlib \
++          -L$$PWD/../third-party/libxml2/lib -llibxml2 \
++          -L$$PWD/../third-party/libjpeg-turbo/lib -ljpeg
++    LIBS+=-lws2_32
++}
 +unix:INCLUDEPATH+=/usr/local/include /usr/local/include/libxml2
 +unix:CONFIG+=staticlib
 +
@@ -327,7 +332,7 @@ index 00000000..78bf8541
 +DEFINES+=RAWSPEED_BUILDLIB
 +CONFIG-=qt
 +
-+## Installation
++# Installation
 +target.path = $$[QT_INSTALL_LIBS]
 +INSTALLS += target
 +
