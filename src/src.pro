@@ -36,7 +36,7 @@ win32: {
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target
 
-unix: {
+unix:!isEmpty(INSTALL_KDEDIR): {
     # For KDE, install a .desktop file with metadata about the loader
     kde_desktop.files = raw.desktop
     kde_desktop.path = $${INSTALL_KDEDIR}/share/kde4/services/qimageioplugins/
