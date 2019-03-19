@@ -21,204 +21,266 @@
 #include "datastream.h"
 #include "raw-io-handler.h"
 
+#include <array>
+
 #include <QDebug>
 #include <QImage>
 #include <QVariant>
 
 #include "libraw.h"
 
+using namespace std;
+
+/**
+ * @brief Private data of the RawIOHandler class - pimpl.
+ */
 class RawIOHandlerPrivate
 {
 public:
-    RawIOHandlerPrivate(RawIOHandler *qq):
-        raw(0),
-        stream(0),
+    RawIOHandlerPrivate(RawIOHandler* qq) :
+        raw(nullptr),
+        stream(nullptr),
         q(qq)
     {}
 
     ~RawIOHandlerPrivate();
 
-    bool load(QIODevice *device);
+    Q_DISABLE_COPY(RawIOHandlerPrivate);
+    RawIOHandlerPrivate(const RawIOHandlerPrivate&& rhs) = delete;
+    RawIOHandlerPrivate& operator=(const RawIOHandlerPrivate&& rhs) = delete;
 
-    LibRaw *raw;
-    Datastream *stream;
-    QSize            defaultSize;
-    QSize            scaledSize;
-    mutable RawIOHandler *q;
+    /**
+     * @brief Opens the internal @b Datastream from the given @a device.
+     * @returns true on success
+     * @returns false on failure
+     */
+    bool openDatastream(QIODevice* device);
+
+    unique_ptr<LibRaw> raw;
+    unique_ptr<Datastream> stream;
+    QSize defaultSize;
+    QSize scaledSize;
+    mutable RawIOHandler* q;
 };
 
+//============================================================================
 RawIOHandlerPrivate::~RawIOHandlerPrivate()
 {
-    delete raw;
-    raw = 0;
-    delete stream;
-    stream = 0;
+    raw.reset(nullptr);
+    stream.reset(nullptr);
 }
 
-bool RawIOHandlerPrivate::load(QIODevice *device)
+//============================================================================
+bool RawIOHandlerPrivate::openDatastream(QIODevice* device)
 {
-    if (device == 0) return false;
+    if (!device)
+    {
+        return false;
+    }
 
     device->seek(0);
-    if (raw != 0) return true;
+    if (raw)
+    {
+        return true;
+    }
 
-    stream = new Datastream(device);
-    raw = new LibRaw;
-    if (raw->open_datastream(stream) != LIBRAW_SUCCESS) {
-        delete raw;
-        raw = 0;
-        delete stream;
-        stream = 0;
+    stream = make_unique<Datastream>(device);
+    raw = make_unique<LibRaw>();
+    if (raw->open_datastream(stream.get()) != LIBRAW_SUCCESS)
+    {
+        raw.reset(nullptr);
+        stream.reset(nullptr);
         return false;
     }
 
     defaultSize = QSize(raw->imgdata.sizes.width,
                         raw->imgdata.sizes.height);
-    if (raw->imgdata.sizes.flip == 5 || raw->imgdata.sizes.flip == 6) {
+    if (raw->imgdata.sizes.flip == 5 || raw->imgdata.sizes.flip == 6)
+    {
         defaultSize.transpose();
     }
     return true;
 }
 
 
-RawIOHandler::RawIOHandler():
+//============================================================================
+RawIOHandler::RawIOHandler() :
     d(new RawIOHandlerPrivate(this))
 {
 }
 
-
+//============================================================================
 RawIOHandler::~RawIOHandler()
 {
     delete d;
 }
 
+//============================================================================
+bool RawIOHandler::canRead(QIODevice* device)
+{
+    if (!device)
+    {
+        return false;
+    }
+    RawIOHandler handler;
+    return handler.d->openDatastream(device);
+}
 
+//============================================================================
 bool RawIOHandler::canRead() const
 {
-    if (canRead(device())) {
+    if (canRead(device()))
+    {
         setFormat("raw");
         return true;
     }
     return false;
 }
 
-
-bool RawIOHandler::canRead(QIODevice *device)
+//============================================================================
+bool RawIOHandler::read(QImage* image)
 {
-    if (!device) {
+    if (!d->openDatastream(device()))
+    {
         return false;
     }
-    RawIOHandler handler;
-    return handler.d->load(device);
-}
 
+    const auto finalSize = d->scaledSize.isValid() ?
+                           d->scaledSize : d->defaultSize;
 
-bool RawIOHandler::read(QImage *image)
-{
-    if (!d->load(device())) return false;
+    const auto& imgdata = d->raw->imgdata;
+    const auto deleter = [](auto* i){ LibRaw::dcraw_clear_mem(i); qDebug() << "deleter"; };
+    unique_ptr<libraw_processed_image_t, decltype(deleter)> output(nullptr, deleter);
 
-    QSize finalSize = d->scaledSize.isValid() ?
-        d->scaledSize : d->defaultSize;
-
-    const libraw_data_t &imgdata = d->raw->imgdata;
-    libraw_processed_image_t *output;
     if (finalSize.width() < imgdata.thumbnail.twidth ||
-        finalSize.height() < imgdata.thumbnail.theight) {
+        finalSize.height() < imgdata.thumbnail.theight)
+    {
         qDebug() << "Using thumbnail";
         d->raw->unpack_thumb();
-        output = d->raw->dcraw_make_mem_thumb();
-    } else {
+        output.reset(d->raw->dcraw_make_mem_thumb());
+    }
+    else
+    {
         qDebug() << "Decoding raw data";
         d->raw->unpack();
         d->raw->dcraw_process();
-        output = d->raw->dcraw_make_mem_image();
+        output.reset(d->raw->dcraw_make_mem_image());
     }
 
     QImage unscaled;
-    uchar *pixels = 0;
-    if (output->type == LIBRAW_IMAGE_JPEG) {
+    if (output->type == LIBRAW_IMAGE_JPEG)
+    {
         unscaled.loadFromData(output->data, output->data_size, "JPEG");
-        if (imgdata.sizes.flip != 0) {
-            QTransform rotation;
+        if (imgdata.sizes.flip != 0)
+        {
             int angle = 0;
-            if (imgdata.sizes.flip == 3) angle = 180;
-            else if (imgdata.sizes.flip == 5) angle = -90;
-            else if (imgdata.sizes.flip == 6) angle = 90;
-            if (angle != 0) {
-                rotation.rotate(angle);
+            if (imgdata.sizes.flip == 3)
+            {
+                angle = 180;
+            }
+            else if (imgdata.sizes.flip == 5)
+            {
+                angle = -90;
+            }
+            else if (imgdata.sizes.flip == 6)
+            {
+                angle = 90;
+            }
+            if (angle != 0)
+            {
+                const auto rotation = [&angle]
+                                      {
+                                          auto rot = QTransform{};
+                                          rot.rotate(angle);
+                                          return rot;
+                                      }();
                 unscaled = unscaled.transformed(rotation);
             }
         }
-    } else {
-        int numPixels = output->width * output->height;
-        int colorSize = output->bits / 8;
-        int pixelSize = output->colors * colorSize;
-        pixels = new uchar[numPixels * 4];
-        uchar *data = output->data;
-        for (int i = 0; i < numPixels; i++, data += pixelSize) {
-            if (output->colors == 3) {
-                pixels[i * 4] = data[2 * colorSize];
+    }
+    else
+    {
+        const auto numPixels = output->width * output->height;
+        const auto colorSize = output->bits / 8;
+        const auto pixelSize = output->colors * colorSize;
+        auto pixels = make_unique<uchar[]>(numPixels * 4);
+        auto data = output->data;
+        for (int i = 0; i < numPixels; ++i, data += pixelSize)
+        {
+            if (output->colors == 3)
+            {
+                pixels[i * 4    ] = data[2 * colorSize];
                 pixels[i * 4 + 1] = data[1 * colorSize];
                 pixels[i * 4 + 2] = data[0];
-            } else {
-                pixels[i * 4] = data[0];
+            }
+            else
+            {
+                pixels[i * 4    ] = data[0];
                 pixels[i * 4 + 1] = data[0];
                 pixels[i * 4 + 2] = data[0];
             }
         }
-        unscaled = QImage(pixels,
+        unscaled = QImage(pixels.release(),
                           output->width, output->height,
                           QImage::Format_RGB32);
     }
 
-    if (unscaled.size() != finalSize) {
+    if (unscaled.size() != finalSize)
+    {
         // TODO: use quality parameter to decide transformation method
         *image = unscaled.scaled(finalSize, Qt::IgnoreAspectRatio,
                                  Qt::SmoothTransformation);
-    } else {
+    }
+    else
+    {
         *image = unscaled;
-        if (output->type == LIBRAW_IMAGE_BITMAP) {
+        if (output->type == LIBRAW_IMAGE_BITMAP)
+        {
             // make sure that the bits are copied
-            uchar *b = image->bits();
+            const auto* b = image->bits();
             Q_UNUSED(b);
         }
     }
-    d->raw->dcraw_clear_mem(output);
-    delete pixels;
 
     return true;
 }
 
-
+//============================================================================
 QVariant RawIOHandler::option(ImageOption option) const
 {
-    switch(option) {
+    switch (option)
+    {
     case ImageFormat:
         return QImage::Format_RGB32;
+
     case Size:
-        d->load(device());
+        d->openDatastream(device());
         return d->defaultSize;
+
     case ScaledSize:
         return d->scaledSize;
+
     default:
         break;
     }
     return QVariant();
 }
 
-
-void RawIOHandler::setOption(ImageOption option, const QVariant & value)
+//============================================================================
+void RawIOHandler::setOption(ImageOption option, const QVariant& value)
 {
-    switch(option) {
+    switch (option)
+    {
     case ScaledSize:
         d->scaledSize = value.toSize();
         break;
+
     default:
         break;
     }
 }
 
-
+//============================================================================
 bool RawIOHandler::supportsOption(ImageOption option) const
 {
     switch (option)
@@ -227,6 +289,7 @@ bool RawIOHandler::supportsOption(ImageOption option) const
     case Size:
     case ScaledSize:
         return true;
+
     default:
         break;
     }

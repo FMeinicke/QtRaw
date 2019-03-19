@@ -5,3 +5,4 @@ moc_*.cpp
 build
 *.user
 third-party/
+image-samples/

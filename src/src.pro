@@ -7,7 +7,7 @@ CONFIG(debug,debug|release) {
 }
 
 TEMPLATE = lib
-CONFIG += \
+CONFIG += c++14 \
     link_pkgconfig \
     plugin
 DESTDIR = imageformats

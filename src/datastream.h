@@ -27,26 +27,44 @@
 
 class QIODevice;
 
-class Datastream: public LibRaw_abstract_datastream
+/**
+ * @brief The Datastream class provides an interface that makes it possible to
+ * use a QIODevice as source for a LibRaw_datastream.
+ */
+class Datastream : public LibRaw_abstract_datastream
 {
 public:
-    Datastream(QIODevice *device);
-    ~Datastream();
+    /**
+     * @brief Construct a new Datastream from the given @a device.
+     */
+    Datastream(QIODevice* device);
 
-    // reimplemented virtual methods:
-    virtual int valid();
-    virtual int read(void *ptr, size_t size, size_t nmemb);
-    virtual int seek(INT64 offset, int whence);
-    virtual INT64 tell();
-    virtual INT64 size();
-    virtual int get_char();
-    virtual char *gets(char *s, int n);
-    virtual int scanf_one(const char *fmt, void *val);
-    virtual int eof();
-    virtual void *make_jas_stream();
+    /**
+     * @brief Destruct the Datastream.
+     */
+    ~Datastream() override = default;
+
+    /**
+     * Rule of five.
+     */
+    Q_DISABLE_COPY(Datastream);
+    Datastream(const Datastream&& rhs) = delete;
+    Datastream& operator=(const Datastream&& rhs) = delete;
+
+    // reimplemented virtual methods -----------------------------------------
+    int valid() override;
+    int read(void* ptr, size_t size, size_t nmemb) override;
+    int seek(INT64 offset, int whence) override;
+    INT64 tell() override;
+    INT64 size() override;
+    int get_char() override;
+    char* gets(char* s, int n) override;
+    int scanf_one(const char* fmt, void* val) override;
+    int eof() override;
+    void* make_jas_stream() override;
 
 private:
-    QIODevice *m_device;
+    std::shared_ptr<QIODevice> m_device;
 };
 
 #endif // DATASTREAM_H

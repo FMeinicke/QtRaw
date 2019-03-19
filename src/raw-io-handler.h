@@ -21,29 +21,49 @@
 #ifndef RAW_IO_HANDLER_H
 #define RAW_IO_HANDLER_H
 
+//============================================================================
+//                                   INCLUDES
+//============================================================================
 #include <QImageIOHandler>
 
+//============================================================================
+//                            FORWARD DECLARATIONS
+//============================================================================
 class QImage;
 class QByteArray;
 class QIODevice;
 class QVariant;
 
 class RawIOHandlerPrivate;
-class RawIOHandler: public QImageIOHandler
+
+/**
+ * @brief The RawIOHandler class implements the functionality of Libraw to make
+ * it usable for the use with the QImageReader.
+ */
+class RawIOHandler : public QImageIOHandler
 {
 public:
     RawIOHandler();
-    ~RawIOHandler();
+    ~RawIOHandler() override;
 
-    virtual bool canRead() const;
-    virtual bool read(QImage *image);
-    static bool canRead(QIODevice *device);
-    virtual QVariant option(ImageOption option) const;
-    virtual void setOption(ImageOption option, const QVariant & value);
-    virtual bool supportsOption(ImageOption option) const;
+    /**
+     * Rule of five.
+     */
+    Q_DISABLE_COPY(RawIOHandler);
+    RawIOHandler(const RawIOHandler&& rhs) = delete;
+    RawIOHandler& operator=(const RawIOHandler&& rhs) = delete;
+
+    static bool canRead(QIODevice* device);
+
+    // reimplemented virtual functions ----------------------------------------
+    bool canRead() const override;
+    bool read(QImage* image) override;
+    QVariant option(ImageOption option) const override;
+    void setOption(ImageOption option, const QVariant& value) override;
+    bool supportsOption(ImageOption option) const override;
 
 private:
-    RawIOHandlerPrivate *d;
+    RawIOHandlerPrivate* d;
 };
 
 #endif // RAW_IO_HANDLER_H

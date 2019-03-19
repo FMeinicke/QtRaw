@@ -25,7 +25,7 @@
 
 #include "raw-io-handler.h"
 
-class RawPlugin: public QImageIOPlugin
+class RawPlugin : public QImageIOPlugin
 {
     Q_OBJECT
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -34,42 +34,49 @@ class RawPlugin: public QImageIOPlugin
 
 public:
     QStringList keys() const;
-    Capabilities capabilities(QIODevice *device,
-                              const QByteArray &format) const;
-    QImageIOHandler *create(QIODevice *device,
-                            const QByteArray &format = QByteArray()) const;
+    Capabilities capabilities(QIODevice* device,
+                              const QByteArray& format) const override;
+    QImageIOHandler* create(QIODevice* device,
+                            const QByteArray& format = QByteArray()) const override;
 };
 
 QStringList RawPlugin::keys() const
 {
     return QStringList() <<
-        QLatin1String("crw") << QLatin1String("cr2") <<
-        QLatin1String("arw") <<
-        QLatin1String("nef") <<
-        QLatin1String("raf") <<
-        QLatin1String("dng");
+           QLatin1String("crw") << QLatin1String("cr2") <<
+           QLatin1String("arw") <<
+           QLatin1String("nef") <<
+           QLatin1String("raf") <<
+           QLatin1String("dng");
 }
 
 QImageIOPlugin::Capabilities
-RawPlugin::capabilities(QIODevice *device, const QByteArray &format) const
+RawPlugin::capabilities(QIODevice* device, const QByteArray& format) const
 {
     if (keys().contains(format) ||
         format == "tif" ||
         format == "tiff")
-        return Capabilities(CanRead);
+    {
+        return {CanRead};
+    }
     if (!format.isEmpty())
-        return 0;
+    {
+        return nullptr;
+    }
 
     Capabilities cap;
     if (device->isReadable() && RawIOHandler::canRead(device))
+    {
         cap |= CanRead;
+    }
     return cap;
 }
 
-QImageIOHandler *RawPlugin::create(QIODevice *device,
-                                   const QByteArray &format) const
+QImageIOHandler* RawPlugin::create(QIODevice* device,
+                                   const QByteArray& format) const
 {
-    RawIOHandler *handler = new RawIOHandler();
+    auto* handler = new RawIOHandler();
+
     handler->setDevice(device);
     handler->setFormat(format);
     return handler;

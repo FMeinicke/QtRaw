@@ -23,91 +23,115 @@
 #include <QIODevice>
 #include <QTextStream>
 
-Datastream::Datastream(QIODevice *device):
+using namespace std;
+
+//============================================================================
+Datastream::Datastream(QIODevice* device) :
     m_device(device)
 {
 }
 
-Datastream::~Datastream()
-{
-}
-
+//============================================================================
 int Datastream::valid()
 {
     return m_device->isReadable();
 }
 
-int Datastream::read(void *ptr, size_t size, size_t nmemb)
+//============================================================================
+int Datastream::read(void* ptr, size_t size, size_t nmemb)
 {
-    return int(m_device->read((char *)ptr, size * nmemb));
+    return int(m_device->read(static_cast<char*>(ptr), size * nmemb));
 }
 
+//============================================================================
 int Datastream::seek(INT64 offset, int whence)
 {
     qint64 pos;
-    switch (whence) {
+
+    switch (whence)
+    {
     case SEEK_SET:
         pos = offset;
         break;
+
     case SEEK_CUR:
         pos = m_device->pos() + offset;
         break;
+
     case SEEK_END:
         pos = m_device->size();
         break;
+
     default:
         return -1;
     }
 
-    if (pos < 0) pos = 0;
+    if (pos < 0)
+    {
+        pos = 0;
+    }
     return m_device->seek(pos) ? 0 : -1;
 }
 
+//============================================================================
 INT64 Datastream::tell()
 {
     return m_device->pos();
 }
 
+//============================================================================
 INT64 Datastream::size()
 {
     return m_device->size();
 }
 
+//============================================================================
 int Datastream::get_char()
 {
     char c;
+
     return m_device->getChar(&c) ? (unsigned char)c : -1;
 }
 
-char *Datastream::gets(char *s, int n)
+//============================================================================
+char* Datastream::gets(char* s, int n)
 {
-    return m_device->readLine(s, n) >= 0 ? s : NULL;
+    return m_device->readLine(s, n) >= 0 ? s : nullptr;
 }
 
-int Datastream::scanf_one(const char *fmt, void *val)
+//============================================================================
+int Datastream::scanf_one(const char* fmt, void* val)
 {
-    QTextStream stream(m_device);
+    QTextStream stream(m_device.get());
+
     /* This is only used for %d or %f */
-    if (qstrcmp(fmt, "%d") == 0) {
+    if (qstrcmp(fmt, "%d") == 0)
+    {
         int d;
         stream >> d;
         *(static_cast<int*>(val)) = d;
-    } else if (qstrcmp(fmt, "%f") == 0) {
+    }
+    else if (qstrcmp(fmt, "%f") == 0)
+    {
         float f;
         stream >> f;
         *(static_cast<float*>(val)) = f;
-    } else {
+    }
+    else
+    {
         return 0;
     }
     return (stream.status() == QTextStream::Ok) ? 1 : EOF;
 }
 
+//============================================================================
 int Datastream::eof()
 {
     return m_device->atEnd();
 }
 
-void *Datastream::make_jas_stream()
+//============================================================================
+void* Datastream::make_jas_stream()
 {
-    return NULL;
+    return nullptr;
 }
