@@ -64,7 +64,7 @@ public:
     void* make_jas_stream() override;
 
 private:
-    std::shared_ptr<QIODevice> m_device;
+    QIODevice* m_device;
 };
 
 #endif // DATASTREAM_H

@@ -179,9 +179,9 @@ bool MainWindow::loadImage(const QString& FileName)
 
     if (NewImage.isNull())
     {
-        QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                 tr("Cannot load %1: %2")
-                                 .arg(QDir::toNativeSeparators(FileName), Reader.errorString()));
+        QMessageBox::critical(this, QGuiApplication::applicationDisplayName(),
+                              tr("Cannot load %1: %2")
+                              .arg(QDir::toNativeSeparators(FileName), Reader.errorString()));
         return false;
     }
     m_Image = NewImage;

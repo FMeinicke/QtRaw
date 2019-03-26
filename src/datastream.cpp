@@ -102,7 +102,7 @@ char* Datastream::gets(char* s, int n)
 //============================================================================
 int Datastream::scanf_one(const char* fmt, void* val)
 {
-    QTextStream stream(m_device.get());
+    QTextStream stream(m_device);
 
     /* This is only used for %d or %f */
     if (qstrcmp(fmt, "%d") == 0)

@@ -43,7 +43,7 @@ public:
         q(qq)
     {}
 
-    ~RawIOHandlerPrivate();
+    ~RawIOHandlerPrivate() = default;
 
     Q_DISABLE_COPY(RawIOHandlerPrivate);
     RawIOHandlerPrivate(const RawIOHandlerPrivate&& rhs) = delete;
@@ -62,14 +62,6 @@ public:
     QSize scaledSize;
     mutable RawIOHandler* q;
 };
-
-//============================================================================
-RawIOHandlerPrivate::~RawIOHandlerPrivate()
-{
-    raw.reset(nullptr);
-    stream.reset(nullptr);
-}
-
 //============================================================================
 bool RawIOHandlerPrivate::openDatastream(QIODevice* device)
 {
@@ -105,15 +97,12 @@ bool RawIOHandlerPrivate::openDatastream(QIODevice* device)
 
 //============================================================================
 RawIOHandler::RawIOHandler() :
-    d(new RawIOHandlerPrivate(this))
+    d(make_unique<RawIOHandlerPrivate>(this))
 {
 }
 
 //============================================================================
-RawIOHandler::~RawIOHandler()
-{
-    delete d;
-}
+RawIOHandler::~RawIOHandler() = default;
 
 //============================================================================
 bool RawIOHandler::canRead(QIODevice* device)
@@ -149,25 +138,40 @@ bool RawIOHandler::read(QImage* image)
                            d->scaledSize : d->defaultSize;
 
     const auto& imgdata = d->raw->imgdata;
-    const auto deleter = [](auto* i){ LibRaw::dcraw_clear_mem(i); qDebug() << "deleter"; };
+    const auto deleter = [](auto* i){ LibRaw::dcraw_clear_mem(i); };
     unique_ptr<libraw_processed_image_t, decltype(deleter)> output(nullptr, deleter);
+    auto ErrorCode = int{};
 
     if (finalSize.width() < imgdata.thumbnail.twidth ||
         finalSize.height() < imgdata.thumbnail.theight)
     {
         qDebug() << "Using thumbnail";
         d->raw->unpack_thumb();
-        output.reset(d->raw->dcraw_make_mem_thumb());
+        output.reset(d->raw->dcraw_make_mem_thumb(&ErrorCode));
     }
     else
     {
         qDebug() << "Decoding raw data";
         d->raw->unpack();
         d->raw->dcraw_process();
-        output.reset(d->raw->dcraw_make_mem_image());
+        output.reset(d->raw->dcraw_make_mem_image(&ErrorCode));
     }
 
-    QImage unscaled;
+    // Check for possible errors that occured during LibRaw loading/processing
+    if (ErrorCode != LIBRAW_SUCCESS || errno != EXIT_SUCCESS)
+    {
+        perror("ERROR DRUING DECODING");
+        qCritical("Error code: %d; LibRaw error: %d\nAborting RawIOHandler::read(QImage*)",
+                  errno, ErrorCode);
+        return false;
+    }
+    if (!output)
+    {
+        qCritical("Output image is a null image! Aborting RawIOHandler::read(QImage*)");
+        return false;
+    }
+
+    auto unscaled = QImage{};
     if (output->type == LIBRAW_IMAGE_JPEG)
     {
         unscaled.loadFromData(output->data, output->data_size, "JPEG");
@@ -237,6 +241,7 @@ bool RawIOHandler::read(QImage* image)
         if (output->type == LIBRAW_IMAGE_BITMAP)
         {
             // make sure that the bits are copied
+            // NOTE: better call detach() explicitly ???
             const auto* b = image->bits();
             Q_UNUSED(b);
         }

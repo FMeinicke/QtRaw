@@ -57,6 +57,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QS
 
     case QtFatalMsg:
         fprintf(stderr, "\e[1m%s: FATAL:\e[0m %s (%s:%u, %s)\n", localTime.constData(), localMsg.constData(), context.file, context.line, context.function);
+        fflush(stderr);
         abort();
         break;
     }

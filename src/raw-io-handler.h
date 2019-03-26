@@ -26,6 +26,8 @@
 //============================================================================
 #include <QImageIOHandler>
 
+#include <memory>
+
 //============================================================================
 //                            FORWARD DECLARATIONS
 //============================================================================
@@ -63,7 +65,7 @@ public:
     bool supportsOption(ImageOption option) const override;
 
 private:
-    RawIOHandlerPrivate* d;
+    std::unique_ptr<RawIOHandlerPrivate> d;
 };
 
 #endif // RAW_IO_HANDLER_H
