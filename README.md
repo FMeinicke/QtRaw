@@ -4,15 +4,16 @@ A Qt image plugin for loading raw files, via libraw. Once installed, it enables 
 
 This is a fork from the [mardy/qtraw](https://github.com/mardy/qtraw) repsitory (which has now moved to [GitLab](https://gitlab.com/mardy/qtraw)) with the intention to make the QtRaw Plugin usable under Windows as well as Linux. 
 
-## Installation
+# Installation
 
-### Linux
+## Linux
+
 The QtRaw plugin depends on Qt and LibRaw. In order to build it, make sure you have the necessary development packages installed. Under Ubuntu, this can be achieved by running these commands: 
-```console
+```bash
 $ sudo apt-get install libraw-dev qtbase5-dev
 ```
 for building with Qt 5, or 
-```console
+```bash
 $ sudo apt-get install libraw-dev libqt4-dev
 ```
 for building with Qt 4.
@@ -20,17 +21,18 @@ Alternatively, you can find the libraw source code at
 http://www.libraw.org/download
 
 Once the dependencies are set up, then clone the repository as usual with
-```console
+```bash
 $ git clone https://github.com/FMeinicke/QtRaw.git  
 ```
 The following commands will build and install the plugin into your system:
-```console
-$ qmake  
-$ make  
-$ sudo make install  
+```bash
+$ mkdir build && cd build
+$ qmake ..
+$ make -j$(nproc)
+$ sudo make install
 ```
 
-### Windows
+## Windows
 Unfortunately on Windows the build process is not as easy as on Linux. Therefore I tried to simplify it as much as possible. What I ended up with simplifies the build to a minimum number of steps. (If you find another easier way of building QtRaw just let me know.) 
 First of all clone the repository with
 ```cmd
@@ -55,12 +57,13 @@ If you prefer the command line, just run
 > mingw32-make -j<number_of_cpu_cores>  
 > mingw32-make install  
 ```
+
 Substitute `<number_of_cpu_cores>` with the number of CPUs your PC has.  
 If everything worked correctly, all Qt applications should be able to load and display raw camera files.
 
 This was tested with Qt 5.11.1 on a Windows 10 machine. I'll test if and how this procedure is applicable with the MSVC compiler as well.
 
-## Getting started
+# Getting started
 The project contains a simple example application that was taken from one of the Qt Examples. It is basically a simplified version of the [imageviewer](https://github.com/qt/qtbase/tree/5.12/examples/widgets/widgets/imageviewer) example. The example shows how you can use a `QImageReader` object to read an image from a file:
 ```cpp
 QImageReader Reader{FileName};
@@ -68,9 +71,9 @@ const auto NewImage = Reader.read();
 
 if (NewImage.isNull())
 {
-    QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
-                                tr("Cannot load %1: %2")
-                                .arg(QDir::toNativeSeparators(FileName), Reader.errorString()));
+    QMessageBox::critical(this, QGuiApplication::applicationDisplayName(),
+                          tr("Cannot load %1: %2")
+                          .arg(QDir::toNativeSeparators(FileName), Reader.errorString()));
     return false;
 }
 m_Image = NewImage;
