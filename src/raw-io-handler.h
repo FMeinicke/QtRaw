@@ -55,6 +55,10 @@ public:
     RawIOHandler(const RawIOHandler&& rhs) = delete;
     RawIOHandler& operator=(const RawIOHandler&& rhs) = delete;
 
+    /**
+     * @brief Tests if the RawIOHandler can read image data from the given @a device.
+     * @returns true on success, false otherwise
+     */
     static bool canRead(QIODevice* device);
 
     // reimplemented virtual functions ----------------------------------------
