@@ -6,3 +6,6 @@
 	path = rawspeed
 	url = https://github.com/darktable-org/rawspeed.git
 	branch = master
+[submodule "pugixml"]
+	path = pugixml
+	url = https://github.com/zeux/pugixml.git
