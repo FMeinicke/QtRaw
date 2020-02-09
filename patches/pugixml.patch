@@ -1,0 +1,16 @@
+ src/pugiconfig.hpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/pugiconfig.hpp b/src/pugiconfig.hpp
+index 2fb6918..3ea80fe 100644
+--- a/src/pugiconfig.hpp
++++ b/src/pugiconfig.hpp
+@@ -41,7 +41,7 @@
+ // #define PUGIXML_MEMORY_XPATH_PAGE_SIZE 4096
+ 
+ // Uncomment this to switch to header-only version
+-// #define PUGIXML_HEADER_ONLY
++#define PUGIXML_HEADER_ONLY
+ 
+ // Uncomment this to enable long long support
+ // #define PUGIXML_HAS_LONG_LONG
