@@ -1,161 +1,249 @@
-diff --git a/RawSpeed/Camera.h b/RawSpeed/Camera.h
-index 7b3045d3..4363c1be 100644
---- a/RawSpeed/Camera.h
-+++ b/RawSpeed/Camera.h
-@@ -6,6 +6,7 @@
- #include <libxml/parser.h>
- #include "BlackArea.h"
- #include "CameraMetadataException.h"
-+#include "dlldef.h"
- /* 
-     RawSpeed - RAW file decoder.
- 
-@@ -30,7 +31,7 @@
- 
- namespace RawSpeed {
- 
--class Camera
-+class DllDef Camera
- {
- public:
-   Camera(xmlDocPtr doc, xmlNodePtr cur);
-diff --git a/RawSpeed/CameraMetaData.h b/RawSpeed/CameraMetaData.h
-index aa671a91..7254b354 100644
---- a/RawSpeed/CameraMetaData.h
-+++ b/RawSpeed/CameraMetaData.h
-@@ -5,6 +5,7 @@
- #include <libxml/parser.h>
- #include <libxml/xmlschemas.h>
- #include "Camera.h"
-+#include "dlldef.h"
- /* 
-     RawSpeed - RAW file decoder.
- 
-@@ -29,7 +30,7 @@
- 
- namespace RawSpeed {
- 
--class CameraMetaData
-+class DllDef CameraMetaData
- {
- public:
-   CameraMetaData();
-diff --git a/RawSpeed/CameraMetadataException.h b/RawSpeed/CameraMetadataException.h
-index 55a2814f..52d5ea17 100644
---- a/RawSpeed/CameraMetadataException.h
-+++ b/RawSpeed/CameraMetadataException.h
-@@ -22,10 +22,11 @@
- #ifndef CAMERA_METADATA_EXCEPTION_H
- #define CAMERA_METADATA_EXCEPTION_H
- 
-+#include "dlldef.h"
- 
- namespace RawSpeed {
- 
--void ThrowCME(const char* fmt, ...);
-+void DllDef ThrowCME(const char* fmt, ...);
- 
- class CameraMetadataException :
-   public std::runtime_error
-diff --git a/RawSpeed/FileMap.h b/RawSpeed/FileMap.h
-index 0e31cdff..a713ed93 100644
---- a/RawSpeed/FileMap.h
-+++ b/RawSpeed/FileMap.h
-@@ -25,6 +25,7 @@
- */
- 
- #include "IOException.h"
-+#include "dlldef.h"
- 
- namespace RawSpeed {
- 
-@@ -36,7 +37,7 @@ namespace RawSpeed {
-  * This can also be done as a MemMap 
-  * 
-  *****************************/
--class FileMap
-+class DllDef FileMap
- {
- public:
-   FileMap(uint32 _size);                 // Allocates the data array itself
-diff --git a/RawSpeed/RawDecoder.h b/RawSpeed/RawDecoder.h
-index cb5506af..1413a817 100644
---- a/RawSpeed/RawDecoder.h
-+++ b/RawSpeed/RawDecoder.h
-@@ -10,6 +10,7 @@
- #include "BitPumpPlain.h"
- #include "CameraMetaData.h"
- #include "TiffIFD.h"
-+#include "dlldef.h"
- 
- /* 
-     RawSpeed - RAW file decoder.
-@@ -50,7 +51,7 @@ class RawDecoderThread
-     uint32 taskNo;
- };
- 
--class RawDecoder 
-+class DllDef RawDecoder 
- {
- public:
-   /* Construct decoder instance - FileMap is a filemap of the file to be decoded */
-diff --git a/RawSpeed/RawImage.h b/RawSpeed/RawImage.h
-index 0d682720..06f64641 100644
---- a/RawSpeed/RawImage.h
-+++ b/RawSpeed/RawImage.h
-@@ -26,6 +26,8 @@
-     http://www.klauspost.com
- */
- 
-+#include "dlldef.h"
-+
- namespace RawSpeed {
- 
- class RawImage;
-@@ -47,7 +49,7 @@ protected:
-   int end_y;
- };
- 
--class RawImageData
-+class DllDef RawImageData
- {
-   friend class RawImageWorker;
- public:
-@@ -143,7 +145,7 @@ protected:
-   friend class RawImage;
- };
- 
-- class RawImage {
-+ class DllDef RawImage {
-  public:
-    static RawImage create(RawImageType type = TYPE_USHORT16);
-    static RawImage create(iPoint2D dim, RawImageType type = TYPE_USHORT16, uint32 componentsPerPixel = 1);
-diff --git a/RawSpeed/RawParser.h b/RawSpeed/RawParser.h
-index 9ef86e3e..1b3cb833 100644
---- a/RawSpeed/RawParser.h
-+++ b/RawSpeed/RawParser.h
-@@ -25,10 +25,11 @@
- 
- #include "FileMap.h"
- #include "RawDecoder.h"
-+#include "dlldef.h"
- 
- namespace RawSpeed {
- 
--class RawParser 
-+class DllDef RawParser 
- {
- public:
-   RawParser(FileMap* input);
-diff --git a/RawSpeed/dlldef.h b/RawSpeed/dlldef.h
+ rawspeed.pro | 225 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 225 insertions(+)
+
+diff --git a/rawspeed.pro b/rawspeed.pro
 new file mode 100644
-index 00000000..cc346727
+index 00000000..0fce28c6
 --- /dev/null
-+++ b/RawSpeed/dlldef.h
++++ b/rawspeed.pro
+@@ -0,0 +1,225 @@
++TEMPLATE=lib
++TARGET=rawspeed
++CONFIG += warn_off
++
++win32: {
++    INCLUDEPATH *= $$PWD/../third-party/zlib-64/include \
++        $$PWD/../third-party/libjpeg-turbo-64/include
++    LIBS+=-L$$PWD/../third-party/zlib-64/lib/ -lz \
++          -L$$PWD/../third-party/libjpeg-turbo-64/lib -ljpeg
++    LIBS+=-lws2_32 -fopenmp
++}
++unix:INCLUDEPATH+=/usr/local/include /usr/local/include/libxml2
++unix:CONFIG+=staticlib
++
++INCLUDEPATH *= $$PWD/src \
++               $$PWD/src/librawspeed \
++               $$PWD/src/external \
++               $$PWD/../third-party/libjpeg-turbo-64/include \
++               $$PWD/../pugixml/src
++
++HEADERS =  \
++    src/dlldef.h \
++    src/librawspeed/common/Array2DRef.h \
++    src/librawspeed/common/ChecksumFile.h \
++    src/librawspeed/common/Common.h \
++    src/librawspeed/common/Cpuid.h \
++    src/librawspeed/common/DefaultInitAllocatorAdaptor.h \
++    src/librawspeed/common/DngOpcodes.h \
++    src/librawspeed/common/ErrorLog.h \
++    src/librawspeed/common/Memory.h \
++    src/librawspeed/common/Mutex.h \
++    src/librawspeed/common/NORangesSet.h \
++    src/librawspeed/common/Optional.h \
++    src/librawspeed/common/Point.h \
++    src/librawspeed/common/Range.h \
++    src/librawspeed/common/RawImage.h \
++    src/librawspeed/common/RawspeedException.h \
++    src/librawspeed/common/SimpleLUT.h \
++    src/librawspeed/common/Spline.h \
++    src/librawspeed/common/TableLookUp.h \
++    src/librawspeed/decoders/AbstractTiffDecoder.h \
++    src/librawspeed/decoders/ArwDecoder.h \
++    src/librawspeed/decoders/Cr2Decoder.h \
++    src/librawspeed/decoders/CrwDecoder.h \
++    src/librawspeed/decoders/DcrDecoder.h \
++    src/librawspeed/decoders/DcsDecoder.h \
++    src/librawspeed/decoders/DngDecoder.h \
++    src/librawspeed/decoders/ErfDecoder.h \
++    src/librawspeed/decoders/IiqDecoder.h \
++    src/librawspeed/decoders/KdcDecoder.h \
++    src/librawspeed/decoders/MefDecoder.h \
++    src/librawspeed/decoders/MosDecoder.h \
++    src/librawspeed/decoders/MrwDecoder.h \
++    src/librawspeed/decoders/NakedDecoder.h \
++    src/librawspeed/decoders/NefDecoder.h \
++    src/librawspeed/decoders/OrfDecoder.h \
++    src/librawspeed/decoders/PefDecoder.h \
++    src/librawspeed/decoders/RafDecoder.h \
++    src/librawspeed/decoders/RawDecoder.h \
++    src/librawspeed/decoders/RawDecoderException.h \
++    src/librawspeed/decoders/Rw2Decoder.h \
++    src/librawspeed/decoders/SimpleTiffDecoder.h \
++    src/librawspeed/decoders/SrwDecoder.h \
++    src/librawspeed/decoders/ThreefrDecoder.h \
++    src/librawspeed/decompressors/AbstractDecompressor.h \
++    src/librawspeed/decompressors/AbstractDngDecompressor.h \
++    src/librawspeed/decompressors/AbstractHuffmanTable.h \
++    src/librawspeed/decompressors/AbstractLJpegDecompressor.h \
++    src/librawspeed/decompressors/AbstractSamsungDecompressor.h \
++    src/librawspeed/decompressors/BinaryHuffmanTree.h \
++    src/librawspeed/decompressors/Cr2Decompressor.h \
++    src/librawspeed/decompressors/CrwDecompressor.h \
++    src/librawspeed/decompressors/DeflateDecompressor.h \
++    src/librawspeed/decompressors/FujiDecompressor.h \
++    src/librawspeed/decompressors/HasselbladDecompressor.h \
++    src/librawspeed/decompressors/HuffmanTable.h \
++    src/librawspeed/decompressors/HuffmanTableLUT.h \
++    src/librawspeed/decompressors/HuffmanTableLookup.h \
++    src/librawspeed/decompressors/HuffmanTableTree.h \
++    src/librawspeed/decompressors/HuffmanTableVector.h \
++    src/librawspeed/decompressors/JpegDecompressor.h \
++    src/librawspeed/decompressors/KodakDecompressor.h \
++    src/librawspeed/decompressors/LJpegDecompressor.h \
++    src/librawspeed/decompressors/NikonDecompressor.h \
++    src/librawspeed/decompressors/OlympusDecompressor.h \
++    src/librawspeed/decompressors/PanasonicDecompressor.h \
++    src/librawspeed/decompressors/PanasonicDecompressorV5.h \
++    src/librawspeed/decompressors/PentaxDecompressor.h \
++    src/librawspeed/decompressors/PhaseOneDecompressor.h \
++    src/librawspeed/decompressors/SamsungV0Decompressor.h \
++    src/librawspeed/decompressors/SamsungV1Decompressor.h \
++    src/librawspeed/decompressors/SamsungV2Decompressor.h \
++    src/librawspeed/decompressors/SonyArw1Decompressor.h \
++    src/librawspeed/decompressors/SonyArw2Decompressor.h \
++    src/librawspeed/decompressors/UncompressedDecompressor.h \
++    src/librawspeed/decompressors/VC5Decompressor.h \
++    src/librawspeed/interpolators/Cr2sRawInterpolator.h \
++    src/librawspeed/io/BitPumpJPEG.h \
++    src/librawspeed/io/BitPumpLSB.h \
++    src/librawspeed/io/BitPumpMSB.h \
++    src/librawspeed/io/BitPumpMSB16.h \
++    src/librawspeed/io/BitPumpMSB32.h \
++    src/librawspeed/io/BitStream.h \
++    src/librawspeed/io/Buffer.h \
++    src/librawspeed/io/ByteStream.h \
++    src/librawspeed/io/Endianness.h \
++    src/librawspeed/io/FileIO.h \
++    src/librawspeed/io/FileIOException.h \
++    src/librawspeed/io/FileReader.h \
++    src/librawspeed/io/FileWriter.h \
++    src/librawspeed/io/IOException.h \
++    src/librawspeed/metadata/BlackArea.h \
++    src/librawspeed/metadata/Camera.h \
++    src/librawspeed/metadata/CameraMetaData.h \
++    src/librawspeed/metadata/CameraMetadataException.h \
++    src/librawspeed/metadata/CameraSensorInfo.h \
++    src/librawspeed/metadata/ColorFilterArray.h \
++    src/librawspeed/parsers/CiffParser.h \
++    src/librawspeed/parsers/CiffParserException.h \
++    src/librawspeed/parsers/FiffParser.h \
++    src/librawspeed/parsers/FiffParserException.h \
++    src/librawspeed/parsers/RawParser.h \
++    src/librawspeed/parsers/RawParserException.h \
++    src/librawspeed/parsers/TiffParser.h \
++    src/librawspeed/parsers/TiffParserException.h \
++    src/librawspeed/tiff/CiffEntry.h \
++    src/librawspeed/tiff/CiffIFD.h \
++    src/librawspeed/tiff/CiffTag.h \
++    src/librawspeed/tiff/TiffEntry.h \
++    src/librawspeed/tiff/TiffIFD.h \
++    src/librawspeed/tiff/TiffTag.h \
++    src/rawspeedconfig.h
++
++SOURCES = \
++    src/librawspeed/common/ChecksumFile.cpp \
++    src/librawspeed/common/Common.cpp \
++    src/librawspeed/common/Cpuid.cpp \
++    src/librawspeed/common/DngOpcodes.cpp \
++    src/librawspeed/common/ErrorLog.cpp \
++    src/librawspeed/common/GetNumberOfProcessorCores.cpp \
++    src/librawspeed/common/Memory.cpp \
++    src/librawspeed/common/RawImage.cpp \
++    src/librawspeed/common/RawImageDataFloat.cpp \
++    src/librawspeed/common/RawImageDataU16.cpp \
++    src/librawspeed/common/TableLookUp.cpp \
++    src/librawspeed/decoders/AbstractTiffDecoder.cpp \
++    src/librawspeed/decoders/ArwDecoder.cpp \
++    src/librawspeed/decoders/Cr2Decoder.cpp \
++    src/librawspeed/decoders/CrwDecoder.cpp \
++    src/librawspeed/decoders/DcrDecoder.cpp \
++    src/librawspeed/decoders/DcsDecoder.cpp \
++    src/librawspeed/decoders/DngDecoder.cpp \
++    src/librawspeed/decoders/ErfDecoder.cpp \
++    src/librawspeed/decoders/IiqDecoder.cpp \
++    src/librawspeed/decoders/KdcDecoder.cpp \
++    src/librawspeed/decoders/MefDecoder.cpp \
++    src/librawspeed/decoders/MosDecoder.cpp \
++    src/librawspeed/decoders/MrwDecoder.cpp \
++    src/librawspeed/decoders/NakedDecoder.cpp \
++    src/librawspeed/decoders/NefDecoder.cpp \
++    src/librawspeed/decoders/OrfDecoder.cpp \
++    src/librawspeed/decoders/PefDecoder.cpp \
++    src/librawspeed/decoders/RafDecoder.cpp \
++    src/librawspeed/decoders/RawDecoder.cpp \
++    src/librawspeed/decoders/Rw2Decoder.cpp \
++    src/librawspeed/decoders/SimpleTiffDecoder.cpp \
++    src/librawspeed/decoders/SrwDecoder.cpp \
++    src/librawspeed/decoders/ThreefrDecoder.cpp \
++    src/librawspeed/decompressors/AbstractDngDecompressor.cpp \
++    src/librawspeed/decompressors/AbstractLJpegDecompressor.cpp \
++    src/librawspeed/decompressors/Cr2Decompressor.cpp \
++    src/librawspeed/decompressors/CrwDecompressor.cpp \
++    src/librawspeed/decompressors/DeflateDecompressor.cpp \
++    src/librawspeed/decompressors/FujiDecompressor.cpp \
++    src/librawspeed/decompressors/HasselbladDecompressor.cpp \
++    src/librawspeed/decompressors/JpegDecompressor.cpp \
++    src/librawspeed/decompressors/KodakDecompressor.cpp \
++    src/librawspeed/decompressors/LJpegDecompressor.cpp \
++    src/librawspeed/decompressors/NikonDecompressor.cpp \
++    src/librawspeed/decompressors/OlympusDecompressor.cpp \
++    src/librawspeed/decompressors/PanasonicDecompressor.cpp \
++    src/librawspeed/decompressors/PanasonicDecompressorV5.cpp \
++    src/librawspeed/decompressors/PentaxDecompressor.cpp \
++    src/librawspeed/decompressors/PhaseOneDecompressor.cpp \
++    src/librawspeed/decompressors/SamsungV0Decompressor.cpp \
++    src/librawspeed/decompressors/SamsungV1Decompressor.cpp \
++    src/librawspeed/decompressors/SamsungV2Decompressor.cpp \
++    src/librawspeed/decompressors/SonyArw1Decompressor.cpp \
++    src/librawspeed/decompressors/SonyArw2Decompressor.cpp \
++    src/librawspeed/decompressors/UncompressedDecompressor.cpp \
++    src/librawspeed/decompressors/VC5Decompressor.cpp \
++    src/librawspeed/interpolators/Cr2sRawInterpolator.cpp \
++    src/librawspeed/io/BitStream.cpp \
++    src/librawspeed/io/FileReader.cpp \
++    src/librawspeed/io/FileWriter.cpp \
++    src/librawspeed/metadata/Camera.cpp \
++    src/librawspeed/metadata/CameraMetaData.cpp \
++    src/librawspeed/metadata/CameraSensorInfo.cpp \
++    src/librawspeed/metadata/ColorFilterArray.cpp \
++    src/librawspeed/parsers/CiffParser.cpp \
++    src/librawspeed/parsers/FiffParser.cpp \
++    src/librawspeed/parsers/RawParser.cpp \
++    src/librawspeed/parsers/TiffParser.cpp \
++    src/librawspeed/tiff/CiffEntry.cpp \
++    src/librawspeed/tiff/CiffIFD.cpp \
++    src/librawspeed/tiff/TiffEntry.cpp \
++    src/librawspeed/tiff/TiffIFD.cpp
++
++DESTDIR = ../libs
++
++DEFINES+=RAWSPEED_BUILDLIB
++CONFIG-=qt
++
++# Installation
++target.path = $$[QT_INSTALL_LIBS]
++INSTALLS += target
++
++win32: {
++    dependencies.path = $$[QT_INSTALL_LIBS]
++    dependencies.files = $$PWD/../third-party/zlib-64/bin/zlib1.dll \
++                         $$PWD/../third-party/zlib-64/lib/zlib.lib \
++                         $$PWD/../third-party/libjpeg-turbo/bin/libjpeg-62.dll \
++                         $$PWD/../third-party/libjpeg-turbo/lib/libjpeg.a
++    INSTALLS += dependencies
++}
+ src/dlldef.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/src/dlldef.h b/src/dlldef.h
+new file mode 100644
+index 00000000..8192864c
+--- /dev/null
++++ b/src/dlldef.h
 @@ -0,0 +1,20 @@
 +#ifndef DLLDEF_H
 +#define DLLDEF_H
-+
++#
 +#ifdef WIN32
 +#ifdef _MSC_VER
 +#pragma warning( disable: 4251 )
@@ -173,178 +261,269 @@ index 00000000..cc346727
 +#  define DllDef
 +#endif
 +#endif
-\ No newline at end of file
-diff --git a/include/libxml/globals.h b/include/libxml/globals.h
-index 76d0ba32..08e47d7b 100644
---- a/include/libxml/globals.h
-+++ b/include/libxml/globals.h
-@@ -240,7 +240,11 @@ XMLPUBVAR xmlStrdupFunc xmlMemStrdup;
- XMLPUBVAR xmlMallocFunc xmlMalloc;
- XMLPUBVAR xmlMallocFunc xmlMallocAtomic;
- XMLPUBVAR xmlReallocFunc xmlRealloc;
-+#ifndef __MINGW32__ /* to avoid linker error with MinGW */
- XMLPUBVAR xmlFreeFunc xmlFree;
-+#else
-+#define xmlFree(x) free(x)
-+#endif
- XMLPUBVAR xmlStrdupFunc xmlMemStrdup;
- #endif /* LIBXML_THREAD_ALLOC_ENABLED */
+ src/librawspeed/common/RawImage.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/librawspeed/common/RawImage.h b/src/librawspeed/common/RawImage.h
+index 98ed2623..c688fb7c 100644
+--- a/src/librawspeed/common/RawImage.h
++++ b/src/librawspeed/common/RawImage.h
+@@ -20,6 +20,7 @@
  
-diff --git a/include/pthread.h b/include/pthread.h
-index f3d2dac9..e1e20e5b 100644
---- a/include/pthread.h
-+++ b/include/pthread.h
-@@ -304,10 +304,13 @@ enum {
+ #pragma once
  
- #ifndef HAVE_STRUCT_TIMESPEC
- #define HAVE_STRUCT_TIMESPEC 1
-+#ifndef _TIMESPEC_DEFINED
-+#define _TIMESPEC_DEFINED
- struct timespec {
-         long tv_sec;
-         long tv_nsec;
++#include "dlldef.h"
+ #include "rawspeedconfig.h"
+ #include "ThreadSafetyAnalysis.h" // for GUARDED_BY, REQUIRES
+ #include "common/Array2DRef.h"    // for Array2DRef
+@@ -94,7 +95,7 @@ public:
+   int isoSpeed;
  };
-+#endif /* _TIMESPEC_DEFINED */
- #endif /* HAVE_STRUCT_TIMESPEC */
  
- #ifndef SIG_BLOCK
-diff --git a/rawspeed.pro b/rawspeed.pro
+-class RawImageData : public ErrorLog {
++class DllDef RawImageData : public ErrorLog {
+   friend class RawImageWorker;
+ public:
+   virtual ~RawImageData();
+@@ -218,7 +219,7 @@ protected:
+   friend class RawImage;
+ };
+ 
+- class RawImage {
++ class DllDef RawImage {
+  public:
+    static RawImage create(RawImageType type = TYPE_USHORT16);
+    static RawImage create(const iPoint2D& dim,
+ src/librawspeed/common/RawspeedException.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/librawspeed/common/RawspeedException.h b/src/librawspeed/common/RawspeedException.h
+index bb7a4a5e..f75e726d 100644
+--- a/src/librawspeed/common/RawspeedException.h
++++ b/src/librawspeed/common/RawspeedException.h
+@@ -21,6 +21,7 @@
+ 
+ #pragma once
+ 
++#include "dlldef.h"
+ #include "rawspeedconfig.h"
+ 
+ #include "common/Common.h"
+ src/librawspeed/decoders/RawDecoder.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/librawspeed/decoders/RawDecoder.h b/src/librawspeed/decoders/RawDecoder.h
+index 22b99a35..1852bc7b 100644
+--- a/src/librawspeed/decoders/RawDecoder.h
++++ b/src/librawspeed/decoders/RawDecoder.h
+@@ -21,6 +21,7 @@
+ 
+ #pragma once
+ 
++#include "dlldef.h"
+ #include "common/Common.h"   // for uint32_t, BitOrder
+ #include "common/RawImage.h" // for RawImage
+ #include "metadata/Camera.h" // for Hints
+@@ -34,7 +35,7 @@ class CameraMetaData;
+ 
+ class TiffIFD;
+ 
+-class RawDecoder
++class DllDef RawDecoder
+ {
+ public:
+   /* Construct decoder instance - Buffer is a filemap of the file to be decoded
+ src/librawspeed/io/Buffer.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/librawspeed/io/Buffer.h b/src/librawspeed/io/Buffer.h
+index 265ff113..99b3fbfa 100644
+--- a/src/librawspeed/io/Buffer.h
++++ b/src/librawspeed/io/Buffer.h
+@@ -21,6 +21,7 @@
+ 
+ #pragma once
+ 
++#include "dlldef.h"
+ #include "AddressSanitizer.h" // for ASan
+ #include "common/Common.h"    // for uint8_t, uint64_t, uint32_t
+ #include "common/Memory.h"    // for alignedFree
+@@ -41,7 +42,7 @@ namespace rawspeed {
+  * It intentionally supports only read/const access to the underlying memory.
+  *
+  *************************************************************************/
+-class Buffer
++class DllDef Buffer
+ {
+ public:
+   using size_type = uint32_t;
+ src/librawspeed/metadata/Camera.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/librawspeed/metadata/Camera.h b/src/librawspeed/metadata/Camera.h
+index f484f46e..a5eab022 100644
+--- a/src/librawspeed/metadata/Camera.h
++++ b/src/librawspeed/metadata/Camera.h
+@@ -20,6 +20,7 @@
+ 
+ #pragma once
+ 
++#include "dlldef.h"
+ #include "rawspeedconfig.h"
+ #include "common/Common.h"             // for uint32_t
+ #include "common/Point.h"              // for iPoint2D
+@@ -75,7 +76,7 @@ public:
+   }
+ };
+ 
+-class Camera
++class DllDef Camera
+ {
+ public:
+ #ifdef HAVE_PUGIXML
+ src/librawspeed/metadata/CameraMetaData.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/librawspeed/metadata/CameraMetaData.h b/src/librawspeed/metadata/CameraMetaData.h
+index 4f5f3718..b42af6c2 100644
+--- a/src/librawspeed/metadata/CameraMetaData.h
++++ b/src/librawspeed/metadata/CameraMetaData.h
+@@ -20,6 +20,7 @@
+ 
+ #pragma once
+ 
++#include "dlldef.h"
+ #include "rawspeedconfig.h"
+ #include "common/Common.h"   // for uint32_t
+ #include "metadata/Camera.h" // for Camera
+@@ -43,7 +44,7 @@ struct CameraId {
+   }
+ };
+ 
+-class CameraMetaData final {
++class DllDef CameraMetaData final {
+ public:
+   CameraMetaData() = default;
+ 
+ src/librawspeed/parsers/RawParser.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/librawspeed/parsers/RawParser.h b/src/librawspeed/parsers/RawParser.h
+index 6580e22c..3a80ae01 100644
+--- a/src/librawspeed/parsers/RawParser.h
++++ b/src/librawspeed/parsers/RawParser.h
+@@ -20,6 +20,7 @@
+ 
+ #pragma once
+ 
++#include "dlldef.h"
+ #include <memory> // for unique_ptr
+ 
+ namespace rawspeed {
+@@ -30,7 +31,7 @@ class CameraMetaData;
+ 
+ class RawDecoder;
+ 
+-class RawParser {
++class DllDef RawParser {
+ public:
+   explicit RawParser(const Buffer* inputData) : mInput(inputData) {}
+   virtual ~RawParser() = default;
+ src/rawspeedconfig.h | 89 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 89 insertions(+)
+
+diff --git a/src/rawspeedconfig.h b/src/rawspeedconfig.h
 new file mode 100644
-index 00000000..5864a9cb
+index 00000000..85f4567c
 --- /dev/null
-+++ b/rawspeed.pro
-@@ -0,0 +1,134 @@
-+TEMPLATE=lib
-+TARGET=rawspeed
-+CONFIG += warn_off
++++ b/src/rawspeedconfig.h
+@@ -0,0 +1,89 @@
++/*
++    RawSpeed - RAW file decoder.
 +
-+win32: {
-+    INCLUDEPATH *= $$PWD/../third-party/iconv/include \
-+        $$PWD/../third-party/zlib/include \
-+        $$PWD/../third-party/libxml2/include/libxml2 \
-+        $$PWD/../third-party/libjpeg-turbo/include
-+    LIBS+=-L$$PWD/../third-party/iconv/lib/ -liconv \
-+          -L$$PWD/../third-party/zlib/lib/ -lzlib \
-+          -L$$PWD/../third-party/libxml2/lib -llibxml2 \
-+          -L$$PWD/../third-party/libjpeg-turbo/lib -ljpeg
-+    LIBS+=-lws2_32
-+}
-+unix:INCLUDEPATH+=/usr/local/include /usr/local/include/libxml2
-+unix:CONFIG+=staticlib
++    Copyright (C) 2016-2018 Roman Lebedev
 +
-+INCLUDEPATH *= $$PWD $$PWD/include
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Lesser General Public
++    License as published by the Free Software Foundation; either
++    version 2 of the License, or (at your option) any later version.
 +
-+HEADERS = RawSpeed/ArwDecoder.h \
-+          RawSpeed/BitPumpJPEG.h \
-+          RawSpeed/BitPumpMSB.h \
-+          RawSpeed/BitPumpMSB32.h\
-+          RawSpeed/BitPumpPlain.h \
-+          RawSpeed/BlackArea.h \
-+          RawSpeed/ByteStream.h \
-+          RawSpeed/ByteStreamSwap.h \
-+          RawSpeed/Camera.h \
-+          RawSpeed/CameraMetaData.h \
-+          RawSpeed/CameraMetadataException.h\
-+          RawSpeed/CameraSensorInfo.h \
-+          RawSpeed/ColorFilterArray.h \
-+          RawSpeed/Common.h \
-+          RawSpeed/Cr2Decoder.h \
-+          RawSpeed/DngDecoder.h \
-+          RawSpeed/DngDecoderSlices.h \
-+          RawSpeed/DngOpcodes.h  \
-+          RawSpeed/FileIOException.h \
-+          RawSpeed/FileMap.h \
-+          RawSpeed/FileReader.h \
-+          RawSpeed/IOException.h \
-+          RawSpeed/LJpegDecompressor.h \
-+          RawSpeed/LJpegPlain.h \
-+          RawSpeed/NefDecoder.h \
-+          RawSpeed/NikonDecompressor.h \
-+          RawSpeed/OrfDecoder.h \
-+          RawSpeed/PefDecoder.h \
-+          RawSpeed/PentaxDecompressor.h \
-+          RawSpeed/Point.h RawDecoder.h \
-+          RawSpeed/RawDecoderException.h \
-+          RawSpeed/RawImage.h \
-+          RawSpeed/RawParser.h \
-+          RawSpeed/Rw2Decoder.h \
-+          RawSpeed/SrwDecoder.h \
-+          RawSpeed/StdAfx.h \
-+          RawSpeed/TiffEntry.h \
-+          RawSpeed/TiffEntryBE.h \
-+          RawSpeed/TiffIFD.h \
-+          RawSpeed/TiffIFDBE.h \
-+          RawSpeed/TiffParser.h \
-+          RawSpeed/TiffParserException.h \
-+          RawSpeed/TiffParserHeaderless.h \
-+          RawSpeed/TiffParserOlympus.h \
-+          RawSpeed/TiffTag.h \
-+          RawSpeed/dlldef.h
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++    Lesser General Public License for more details.
 +
-+SOURCES = RawSpeed/ArwDecoder.cpp \
-+          RawSpeed/BitPumpJPEG.cpp \
-+          RawSpeed/BitPumpMSB.cpp \
-+          RawSpeed/BitPumpMSB32.cpp \
-+          RawSpeed/BitPumpPlain.cpp \
-+          RawSpeed/BlackArea.cpp \
-+          RawSpeed/ByteStream.cpp \
-+          RawSpeed/ByteStreamSwap.cpp \
-+          RawSpeed/Camera.cpp \
-+          RawSpeed/CameraMetaData.cpp \
-+          RawSpeed/CameraMetadataException.cpp \
-+          RawSpeed/CameraSensorInfo.cpp \
-+          RawSpeed/ColorFilterArray.cpp \
-+          RawSpeed/Common.cpp \
-+          RawSpeed/Cr2Decoder.cpp \
-+          RawSpeed/DngDecoder.cpp \
-+          RawSpeed/DngDecoderSlices.cpp \
-+          RawSpeed/DngOpcodes.cpp \
-+          RawSpeed/FileIOException.cpp \
-+          RawSpeed/FileMap.cpp \
-+          RawSpeed/FileReader.cpp \
-+          RawSpeed/IOException.cpp \
-+          RawSpeed/LJpegDecompressor.cpp \
-+          RawSpeed/LJpegPlain.cpp \
-+          RawSpeed/NefDecoder.cpp \
-+          RawSpeed/NikonDecompressor.cpp \
-+          RawSpeed/OrfDecoder.cpp \
-+          RawSpeed/PefDecoder.cpp \
-+          RawSpeed/PentaxDecompressor.cpp \
-+          RawSpeed/RawDecoder.cpp \
-+          RawSpeed/RawDecoderException.cpp \
-+          RawSpeed/RawImage.cpp \
-+          RawSpeed/RawImageDataFloat.cpp \
-+          RawSpeed/RawImageDataU16.cpp \
-+          RawSpeed/RawParser.cpp \
-+          RawSpeed/Rw2Decoder.cpp \
-+          RawSpeed/SrwDecoder.cpp \
-+          RawSpeed/TiffEntry.cpp \
-+          RawSpeed/TiffEntryBE.cpp \
-+          RawSpeed/TiffIFD.cpp \
-+          RawSpeed/TiffIFDBE.cpp \
-+          RawSpeed/TiffParser.cpp \
-+          RawSpeed/TiffParserException.cpp \
-+          RawSpeed/TiffParserHeaderless.cpp \
-+          RawSpeed/TiffParserOlympus.cpp
-+          
-+DESTDIR = ../libs
++    You should have received a copy of the GNU Lesser General Public
++    License along with this library; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++*/
 +
-+DEFINES+=RAWSPEED_BUILDLIB
-+CONFIG-=qt
++#pragma once
 +
-+# Installation
-+target.path = $$[QT_INSTALL_LIBS]
-+INSTALLS += target
++#if defined(__SSE2__)
++#define WITH_SSE2
++#else
++/* #undef WITH_SSE2 */
++#endif
 +
-+win32: {
-+    dependencies.path = $$[QT_INSTALL_LIBS]
-+    dependencies.files = $$PWD/../third-party/iconv/bin/iconv.dll \
-+                         $$PWD/../third-party/iconv/lib/iconv.lib \
-+                         $$PWD/../third-party/zlib/bin/zlib1.dll \
-+                         $$PWD/../third-party/zlib/lib/zlib.lib \
-+                         $$PWD/../third-party/libxml2/bin/libxml2.dll \
-+                         $$PWD/../third-party/libxml2/lib/libxml2.lib \
-+                         $$PWD/../third-party/libjpeg-turbo/bin/libjpeg-62.dll \
-+                         $$PWD/../third-party/libjpeg-turbo/lib/libjpeg.a
-+    INSTALLS += dependencies
-+}
++#define HAVE_PUGIXML
++
++#define HAVE_OPENMP
++
++#define HAVE_ZLIB
++
++#define HAVE_JPEG
++#define HAVE_JPEG_MEM_SRC
++
++#define HAVE_CXX_THREAD_LOCAL
++#define HAVE_GCC_THREAD_LOCAL
++
++// which aligned memory allocation function is available, if any?
++// only the first one found will be enabled
++// #define HAVE_POSIX_MEMALIGN
++// #define HAVE_ALIGNED_ALLOC
++#define HAVE_MM_MALLOC
++// #define HAVE_ALIGNED_MALLOC
++
++// #define RAWSPEED_STANDALONE_BUILD
++#ifdef RAWSPEED_STANDALONE_BUILD
++#define RAWSPEED_SOURCE_DIR "@RAWSPEED_SOURCE_DIR@"
++#else
++// If rawspeed is being built as part of some larger build, we can not retain
++// the RAWSPEED_SOURCE_DIR, because that would affect the reproducible builds.
++#endif
++
++#undef OPENMP_FIRSTPRIVATE_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++#undef OPENMP_SHARED_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++
++#ifdef HAVE_OPENMP
++// #define OPENMP_FIRSTPRIVATE_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++#ifdef OPENMP_FIRSTPRIVATE_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++// See https://bugs.llvm.org/show_bug.cgi?id=35873
++//     https://redmine.darktable.org/issues/12568
++#define OMPFIRSTPRIVATECLAUSE(...)
++#else
++#define OMPFIRSTPRIVATECLAUSE(...) firstprivate(__VA_ARGS__)
++#endif
++#undef OPENMP_FIRSTPRIVATE_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++
++// #define OPENMP_SHARED_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++#ifdef OPENMP_SHARED_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++// See https://godbolt.org/z/AiyuX9
++#define OMPSHAREDCLAUSE(...)
++#else
++#define OMPSHAREDCLAUSE(...) shared(__VA_ARGS__)
++#endif
++#undef OPENMP_SHARED_CLAUSE_IS_BROKEN_FOR_CONST_VARIABLES
++#endif // HAVE_OPENMP
++
++// see http://clang.llvm.org/docs/LanguageExtensions.html
++#ifndef __has_feature      // Optional of course.
++#define __has_feature(x) 0 // Compatibility with non-clang compilers.
++#endif
++#ifndef __has_extension
++#define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
++#endif
++
++#define RAWSPEED_UNLIKELY_FUNCTION __attribute__((cold))
++#define RAWSPEED_NOINLINE __attribute__((noinline))

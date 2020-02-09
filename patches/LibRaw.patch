@@ -1,82 +1,55 @@
+ buildfiles/libraw-common-lib.pro |  6 ++++--
+ buildfiles/libraw.pro            | 12 ++++++++++--
+ libraw/libraw_datastream.h       |  1 +
+ 3 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/buildfiles/libraw-common-lib.pro b/buildfiles/libraw-common-lib.pro
+index f26bc75a..dabcadec 100644
+--- a/buildfiles/libraw-common-lib.pro
++++ b/buildfiles/libraw-common-lib.pro
+@@ -1,5 +1,7 @@
+ win32 {
+-    QMAKE_CXXFLAGS+=/MP
++    msvc {
++        QMAKE_CXXFLAGS+=/MP
++    }
+     !contains(QMAKE_HOST.arch, x86_64) {
+ 	SUFF="x86"
+     } else {
+@@ -25,4 +27,4 @@ RCC_DIR = $$OUTD/
+ UI_DIR = $$OUTD/
+ DESTDIR = $$OUTD/
+ LIBS+=-L$$OUTD 
+-CONFIG+=warn_off
+\ No newline at end of file
++CONFIG+=warn_off
 diff --git a/buildfiles/libraw.pro b/buildfiles/libraw.pro
-index 515a5e1..1942633 100644
+index 1a5c56ce..90de4655 100644
 --- a/buildfiles/libraw.pro
 +++ b/buildfiles/libraw.pro
-@@ -1,20 +1,28 @@
+@@ -1,7 +1,10 @@
  TEMPLATE=lib
  TARGET=libraw
 -INCLUDEPATH+=../
 +INCLUDEPATH+=$$PWD/../
  include (libraw-common-lib.pro)
- # JPEG section (libjpeg is linked later)
- DEFINES+=USE_JPEG
-+DEFINES+=NO_LCMS ## don't have this module yet
- 
--## RawSpeed section
-+# RawSpeed section
- DEFINES+=USE_RAWSPEED
--INCLUDEPATH+=../../RawSpeed/
--win32:INCLUDEPATH+= $$TJDIR/include
--win32:INCLUDEPATH+=d:/Qt/local/include d:/Qt/local/include/libxml2
--win32:LIBS+=-L$$TJDIR/lib$$TJSUFF/$$SUFF  -ljpeg 
--win32:LIBS+=-lrawspeed -Ld:/Qt/local/lib/$$SUFF -llibxml2
-+INCLUDEPATH+=$$PWD/../../rawspeed/
-+INCLUDEPATH+=$$PWD/../../rawspeed/include
 +win32: {
-+    INCLUDEPATH *= $$PWD/../../third-party/libxml2/include \
-+                   $$PWD/../../third-party/libjpeg-turbo/include
-+    LIBS+=-L$$PWD/../../third-party/iconv/lib/ -liconv \
-+          -L$$PWD/../../third-party/zlib/lib/ -lzlib \
-+          -L$$PWD/../../third-party/libxml2/lib -llibxml2 \
-+          -L$$PWD/../../third-party/libjpeg-turbo/lib -ljpeg \
-+          -L$$OUT_PWD/../../libs -lrawspeed
-+    LIBS+=-lws2_32
++    LIBS+=-lws2_32 -fopenmp
 +}
  
  HEADERS=../libraw/libraw.h \
--	 ../libraw/libraw_alloc.h \
-+        ../libraw/libraw_alloc.h \
- 	../libraw/libraw_const.h \
- 	../libraw/libraw_datastream.h \
- 	../libraw/libraw_types.h \
-@@ -24,16 +32,16 @@ HEADERS=../libraw/libraw.h \
- 	../internal/var_defines.h \
- 	../internal/libraw_internal_funcs.h
+ 	 ../libraw/libraw_alloc.h \
+@@ -15,7 +18,7 @@ HEADERS=../libraw/libraw.h \
+ 	../internal/libraw_internal_funcs.h \
+ 	../internal/dcraw_defs.h ../internal/dcraw_fileio_defs.h \
+ 	../internal/dmp_include.h ../internal/libraw_cxx_defs.h \
+-	../internal/x3f_tools.h 
++	../internal/x3f_tools.h
  
--win32: {
--PREPROCESS_FILES=../dcraw/dcraw.c
--preprocess.name=dcraw.c preprocess
--preprocess.input=PREPROCESS_FILES
--preprocess.output+=../internal/dcraw_common_fake.cpp 
--preprocess.commands=..\\win32pre.cmd
--preprocess.CONFIG+= no_link
--preprocess.clean=
--preprocess.variable_out=SOURCES
--QMAKE_EXTRA_COMPILERS+=preprocess
-+win32-msvc: {
-+    PREPROCESS_FILES=../dcraw/dcraw.c
-+    preprocess.name=dcraw.c preprocess
-+    preprocess.input=PREPROCESS_FILES
-+    preprocess.output+=../internal/dcraw_common_fake.cpp
-+    preprocess.commands=..\\win32pre.cmd
-+    preprocess.CONFIG+= no_link
-+    preprocess.clean=
-+    preprocess.variable_out=SOURCES
-+    QMAKE_EXTRA_COMPILERS+=preprocess
- }
+ CONFIG +=precompiled_headers
  
- CONFIG-=qt
-@@ -43,10 +51,15 @@ macx: QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.5
- DEFINES+=LIBRAW_BUILDLIB
- 
- SOURCES+= \
--	 ../internal/dcraw_common.cpp \
--	 ../internal/dcraw_fileio.cpp \
-+        ../internal/dcraw_common.cpp \
-+        ../internal/dcraw_fileio.cpp \
- 	../internal/demosaic_packs.cpp \
- 	../src/libraw_cxx.cpp \
- 	../src/libraw_datastream.cpp \
+@@ -68,3 +71,8 @@ SOURCES+= ../src/libraw_datastream.cpp ../src/decoders/canon_600.cpp \
+ 	../src/x3f/x3f_utils_patched.cpp \
  	../src/libraw_c_api.cpp
  
 +DESTDIR = ../../libs
@@ -84,3 +57,15 @@ index 515a5e1..1942633 100644
 +# Installation
 +target.path = $$[QT_INSTALL_LIBS]
 +INSTALLS = target
+diff --git a/libraw/libraw_datastream.h b/libraw/libraw_datastream.h
+index 43249cc2..4ea6ae00 100644
+--- a/libraw/libraw_datastream.h
++++ b/libraw/libraw_datastream.h
+@@ -204,6 +204,7 @@ public:
+ #endif
+   virtual int get_char()
+   {
++#define LIBRAW_WIN32_CALLS
+ #ifndef LIBRAW_WIN32_CALLS
+     return getc_unlocked(f);
+ #else
