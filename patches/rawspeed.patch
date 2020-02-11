@@ -1,12 +1,12 @@
- rawspeed.pro | 225 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 225 insertions(+)
+ rawspeed.pro | 230 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 230 insertions(+)
 
 diff --git a/rawspeed.pro b/rawspeed.pro
 new file mode 100644
-index 00000000..0fce28c6
+index 00000000..76e211fa
 --- /dev/null
 +++ b/rawspeed.pro
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,230 @@
 +TEMPLATE=lib
 +TARGET=rawspeed
 +CONFIG += warn_off
@@ -221,16 +221,21 @@ index 00000000..0fce28c6
 +CONFIG-=qt
 +
 +# Installation
-+target.path = $$[QT_INSTALL_LIBS]
++win32: {
++    target.path = $$[QT_INSTALL_LIBEXECS]
++} else {
++    target.path = $$[QT_INSTALL_LIBS]
++}
 +INSTALLS += target
 +
 +win32: {
-+    dependencies.path = $$[QT_INSTALL_LIBS]
-+    dependencies.files = $$PWD/../third-party/zlib/bin/zlib1.dll \
-+                         $$PWD/../third-party/zlib/lib/zlib.lib \
-+                         $$PWD/../third-party/libjpeg-turbo/bin/libjpeg-62.dll \
-+                         $$PWD/../third-party/libjpeg-turbo/lib/libjpeg.a
-+    INSTALLS += dependencies
++    dll_dependencies.path = $$[QT_INSTALL_LIBEXECS]
++    dll_dependencies.files = $$PWD/../third-party/zlib/bin/zlib1.dll \
++                             $$PWD/../third-party/libjpeg-turbo/bin/libjpeg-62.dll
++    a_dependencies.path = $$[QT_INSTALL_LIBS]
++    a_dependencies.files = $$PWD/../third-party/zlib/lib/libz.a \
++                           $$PWD/../third-party/libjpeg-turbo/lib/libjpeg.a
++    INSTALLS += dll_dependencies a_dependencies
 +}
  src/dlldef.h | 20 ++++++++++++++++++++
  1 file changed, 20 insertions(+)

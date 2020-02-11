@@ -23,10 +23,11 @@ index f26bc75a..dabcadec 100644
 -CONFIG+=warn_off
 \ No newline at end of file
 +CONFIG+=warn_off
- buildfiles/libraw.pro | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ buildfiles/libraw.pro | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
+
 diff --git a/buildfiles/libraw.pro b/buildfiles/libraw.pro
-index 1a5c56ce..bb31d7da 100644
+index 1a5c56ce..cec36ee5 100644
 --- a/buildfiles/libraw.pro
 +++ b/buildfiles/libraw.pro
 @@ -1,7 +1,13 @@
@@ -53,14 +54,18 @@ index 1a5c56ce..bb31d7da 100644
  
  CONFIG +=precompiled_headers
  
-@@ -68,3 +74,8 @@ SOURCES+= ../src/libraw_datastream.cpp ../src/decoders/canon_600.cpp \
+@@ -68,3 +74,12 @@ SOURCES+= ../src/libraw_datastream.cpp ../src/decoders/canon_600.cpp \
  	../src/x3f/x3f_utils_patched.cpp \
  	../src/libraw_c_api.cpp
  
 +DESTDIR = ../../libs
 +
 +# Installation
-+target.path = $$[QT_INSTALL_LIBS]
++win32: {
++    target.path = $$[QT_INSTALL_LIBEXECS]
++} else {
++    target.path = $$[QT_INSTALL_LIBS]
++}
 +INSTALLS = target
 diff --git a/libraw/libraw_datastream.h b/libraw/libraw_datastream.h
 index 43249cc2..4ea6ae00 100644
