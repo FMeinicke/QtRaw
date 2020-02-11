@@ -23,23 +23,28 @@ index f26bc75a..dabcadec 100644
 -CONFIG+=warn_off
 \ No newline at end of file
 +CONFIG+=warn_off
+ buildfiles/libraw.pro | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 diff --git a/buildfiles/libraw.pro b/buildfiles/libraw.pro
-index 1a5c56ce..90de4655 100644
+index 1a5c56ce..bb31d7da 100644
 --- a/buildfiles/libraw.pro
 +++ b/buildfiles/libraw.pro
-@@ -1,7 +1,10 @@
+@@ -1,7 +1,13 @@
  TEMPLATE=lib
  TARGET=libraw
 -INCLUDEPATH+=../
 +INCLUDEPATH+=$$PWD/../
  include (libraw-common-lib.pro)
 +win32: {
++    LIBS+=-L$$PWD/../../third-party/zlib-64/lib/ -lz \
++          -L$$PWD/../../third-party/libjpeg-turbo-64/lib -ljpeg \
++          -L$$OUT_PWD/../../libs -lrawspeed
 +    LIBS+=-lws2_32 -fopenmp
 +}
  
  HEADERS=../libraw/libraw.h \
  	 ../libraw/libraw_alloc.h \
-@@ -15,7 +18,7 @@ HEADERS=../libraw/libraw.h \
+@@ -15,7 +21,7 @@ HEADERS=../libraw/libraw.h \
  	../internal/libraw_internal_funcs.h \
  	../internal/dcraw_defs.h ../internal/dcraw_fileio_defs.h \
  	../internal/dmp_include.h ../internal/libraw_cxx_defs.h \
@@ -48,7 +53,7 @@ index 1a5c56ce..90de4655 100644
  
  CONFIG +=precompiled_headers
  
-@@ -68,3 +71,8 @@ SOURCES+= ../src/libraw_datastream.cpp ../src/decoders/canon_600.cpp \
+@@ -68,3 +74,8 @@ SOURCES+= ../src/libraw_datastream.cpp ../src/decoders/canon_600.cpp \
  	../src/x3f/x3f_utils_patched.cpp \
  	../src/libraw_c_api.cpp
  
