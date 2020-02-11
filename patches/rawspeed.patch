@@ -12,10 +12,10 @@ index 00000000..0fce28c6
 +CONFIG += warn_off
 +
 +win32: {
-+    INCLUDEPATH *= $$PWD/../third-party/zlib-64/include \
-+        $$PWD/../third-party/libjpeg-turbo-64/include
-+    LIBS+=-L$$PWD/../third-party/zlib-64/lib/ -lz \
-+          -L$$PWD/../third-party/libjpeg-turbo-64/lib -ljpeg
++    INCLUDEPATH *= $$PWD/../third-party/zlib/include \
++        $$PWD/../third-party/libjpeg-turbo/include
++    LIBS+=-L$$PWD/../third-party/zlib/lib/ -lz \
++          -L$$PWD/../third-party/libjpeg-turbo/lib -ljpeg
 +    LIBS+=-lws2_32 -fopenmp
 +}
 +unix:INCLUDEPATH+=/usr/local/include /usr/local/include/libxml2
@@ -24,7 +24,7 @@ index 00000000..0fce28c6
 +INCLUDEPATH *= $$PWD/src \
 +               $$PWD/src/librawspeed \
 +               $$PWD/src/external \
-+               $$PWD/../third-party/libjpeg-turbo-64/include \
++               $$PWD/../third-party/libjpeg-turbo/include \
 +               $$PWD/../pugixml/src
 +
 +HEADERS =  \
@@ -226,8 +226,8 @@ index 00000000..0fce28c6
 +
 +win32: {
 +    dependencies.path = $$[QT_INSTALL_LIBS]
-+    dependencies.files = $$PWD/../third-party/zlib-64/bin/zlib1.dll \
-+                         $$PWD/../third-party/zlib-64/lib/zlib.lib \
++    dependencies.files = $$PWD/../third-party/zlib/bin/zlib1.dll \
++                         $$PWD/../third-party/zlib/lib/zlib.lib \
 +                         $$PWD/../third-party/libjpeg-turbo/bin/libjpeg-62.dll \
 +                         $$PWD/../third-party/libjpeg-turbo/lib/libjpeg.a
 +    INSTALLS += dependencies
