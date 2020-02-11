@@ -1,17 +1,21 @@
- rawspeed.pro | 230 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 230 insertions(+)
+ rawspeed.pro | 234 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 234 insertions(+)
 
 diff --git a/rawspeed.pro b/rawspeed.pro
 new file mode 100644
-index 00000000..76e211fa
+index 00000000..48d5c12c
 --- /dev/null
 +++ b/rawspeed.pro
-@@ -0,0 +1,230 @@
+@@ -0,0 +1,234 @@
 +TEMPLATE=lib
 +TARGET=rawspeed
 +CONFIG += warn_off
 +
 +win32: {
++    build_pass:CONFIG(debug, debug|release) {
++        win32: TARGET = $$join(TARGET,,,d) # 'd' suffix for debug builds on Windows
++    }
++
 +    INCLUDEPATH *= $$PWD/../third-party/zlib/include \
 +        $$PWD/../third-party/libjpeg-turbo/include
 +    LIBS+=-L$$PWD/../third-party/zlib/lib/ -lz \

@@ -1,16 +1,15 @@
 include(../common-config.pri)
 
-CONFIG(debug,debug|release) {
-    TARGET  = qtrawd
-} else {
-    TARGET  = qtraw
-}
-
+TARGET = qtraw
 TEMPLATE = lib
 CONFIG += c++14 \
     link_pkgconfig \
     plugin
 DESTDIR = imageformats
+
+build_pass:CONFIG(debug, debug|release) {
+    win32: TARGET = $$join(TARGET,,,d) # 'd' suffix for debug builds on Windows
+}
 
 unix: {
     PKGCONFIG += \
